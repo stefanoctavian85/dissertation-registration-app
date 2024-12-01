@@ -107,6 +107,9 @@ Thumbs.db
 *.key
 *.pem
 
+# ignore environment variable files
+.env
+
 # --------------------------------------------------------
 # BEGIN Explictly Allowed Files (i.e. do NOT ignore these)
 # --------------------------------------------------------
