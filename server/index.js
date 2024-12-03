@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { initialize } from 'express-openapi';
 import { expressjwt } from 'express-jwt';
 import { getAccountByUsername, getAccountById, migrate } from './db/service.js';
 import swaggerUi from 'swagger-ui-express';
@@ -45,12 +44,6 @@ app.post('/login', async (req, res) => {
     }
 
     return res.status(400).json({ message: 'Invalid username or password!' });
-});
-
-initialize({
-    app,
-    apiDoc: './api-doc.yml',
-    paths: './api-routes',
 });
 
 app.listen(PORT, () => {
