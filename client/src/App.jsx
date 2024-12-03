@@ -1,18 +1,21 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
+import Navbar from './components/Navbar.jsx';
 import Login from './components/Login.jsx';
-import CreateAccount from './components/CreateAccount.jsx';
+import Home from './components/Home.jsx';
+import Profile from './components/Profile.jsx';
 
 function App() {
   return(
     <div className='App'>
-      <Router>
+      <BrowserRouter>
+      <Navbar/>
         <Routes>
-          <Route path='/' element={<Navigate to="/login"/>}/>
-          <Route path="/login" element={<Login/>} />
-          <Route path="/create-account" element={<CreateAccount/>} />
+            <Route path='/' element={<Home/>}/>
+            <Route path="/login" element={<Login/>} />
+            <Route path='/profile' element={<Profile/>} />
         </Routes>
-      </Router>
+      </BrowserRouter>
     </div>
   );
 }

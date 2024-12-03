@@ -40,14 +40,20 @@ app.post("/login", async (req, res) => {
   const account = await getAccountByUsername(req.body.username);
 
   if (!account) {
-    return res.status(400).json({ message: "Invalid username or password!" });
+    return res.status(400).json({ message: "Invalid username or password!",
+        success: false,
+    });
   }
 
   if (username === account.username && password === account.password) {
-    return res.status(200).json({ message: "Login successful!" });
+    return res.status(200).json({ message: "Login successful!",
+                                  success: true,
+                                });
   }
 
-  return res.status(400).json({ message: "Invalid username or password!" });
+  return res.status(400).json({ message: "Invalid username or password!",
+                                success: false,
+                            });
 });
 
 app.listen(PORT, () => {

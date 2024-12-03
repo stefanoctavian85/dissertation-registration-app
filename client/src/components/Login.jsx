@@ -16,10 +16,6 @@ function Login() {
         setPassword(e.target.value);
     }
 
-    function createAccount() {
-        navigate('/create-account');
-    }
-
     async function submitButton() {
         const userCredentials = {
             username: username,
@@ -37,6 +33,14 @@ function Login() {
         const data = await response.json();
 
         setMessage(data.message);
+        
+        if (data.success) {
+            setTimeout(() => {
+                sessionStorage.setItem('isLoggedIn', true);
+                setIsLogging(true);
+                navigate('/')
+            }, 1000);
+        }
 
         setUsername("");
         setPassword("");
@@ -63,12 +67,6 @@ function Login() {
                 id='login-button'
                 onClick={submitButton}>
                     Login
-            </button>
-
-            <button
-                id='create-account-button'
-                onClick={createAccount}>
-                    Create account
             </button>
 
             <p>{message}</p>
