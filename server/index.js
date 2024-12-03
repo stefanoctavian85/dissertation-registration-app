@@ -1,22 +1,35 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { initialize } from 'express-openapi';
 import { expressjwt } from 'express-jwt';
 import { getAccountByUsername, getAccountById, migrate } from './db/service.js';
+import swaggerUi from 'swagger-ui-express';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import path from 'path';
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+const PORT = process.env.PORT;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 migrate();
 
-// app.use(expressjwt({
-//     secret: 'my-secret',
-//     algorithms: ['HS256'],
-// }));
+app.use('/api-doc.yml', express.static(path.join(__dirname, 'api-doc.yml')));
 
-const PORT = process.env.PORT;
+app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(null, {
+    swaggerOptions: { url: `http://localhost:${PORT}/api-doc.yml` },
+}));
+
+app.get('/api-doc.yml', (req, res) => {
+    res.json(app.apiDoc);
+});
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -34,6 +47,11 @@ app.post('/login', async (req, res) => {
     return res.status(400).json({ message: 'Invalid username or password!' });
 });
 
+initialize({
+    app,
+    apiDoc: './api-doc.yml',
+    paths: './api-routes',
+});
 
 app.listen(PORT, () => {
     console.log(`has started on port ${PORT}!`);
