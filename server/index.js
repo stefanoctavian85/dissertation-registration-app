@@ -2,12 +2,14 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { expressjwt } from "express-jwt";
-import { getAccountByUsername, getAccountById, migrate } from "./db/service.js";
 import swaggerUi from "swagger-ui-express";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path";
-//test
+import mongoose from 'mongoose';
+import { MongoClient } from "mongodb";
+import { User } from './db/Account.model.js'
+
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -17,8 +19,21 @@ const PORT = process.env.PORT;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const mongodb = new MongoClient(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
 
-migrate();
+mongodb.connect()
+    .then(() => {
+        console.log("Connected to MongoDB successfully!");
+    }).catch(() => {
+        console.error("Error connecting to MongoDB " + err);
+    });
+
+const database = mongodb.db("WebDatabase");
+const collection = database.collection("Users");
+
 
 app.use("/api-doc.yml", express.static(path.join(__dirname, "api-doc.yml")));
 
@@ -37,7 +52,7 @@ app.get("/api-doc.yml", (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const account = await getAccountByUsername(req.body.username);
+  const account = await collection.findOne({ username });
 
   if (!account) {
     return res.status(400).json({ message: "Invalid username or password!",

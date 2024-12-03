@@ -7,11 +7,13 @@ function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        const isLoggedInStatus = sessionStorage.getItem('isLoggedIn');
-        if (isLoggedInStatus) {
+        const loginStatus = sessionStorage.getItem('loginStatus');
+        if (loginStatus === "true") {
             setIsLoggedIn(true);
+        } else {
+            setIsLoggedIn(false);
         }
-    }, [isLoggedIn]);
+    }, []);
 
     return(
         <div>

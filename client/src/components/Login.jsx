@@ -5,7 +5,7 @@ function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-    const [isLogging, setIsLogging] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     function submitUsername(e) {
@@ -36,17 +36,18 @@ function Login() {
         
         if (data.success) {
             setTimeout(() => {
-                sessionStorage.setItem('isLoggedIn', true);
-                setIsLogging(true);
+                sessionStorage.setItem("loginStatus", "true");
+                setIsLoggedIn(true);
                 navigate('/')
             }, 1000);
+        } else {
+            sessionStorage.setItem("loginStatus", "false");
+            setIsLoggedIn(false);
         }
 
         setUsername("");
         setPassword("");
     }
-
-    
 
     return(
         <div>

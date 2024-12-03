@@ -1,25 +1,23 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
     let navigate = useNavigate();
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        const loggedInStatus = sessionStorage.getItem('isLoggedIn');
-        if (loggedInStatus) {
-            setIsLoggedIn(true);
-        }
-    })
-
     function accountHandler() {
-        if (isLoggedIn) {
+        const loggedInStatus = sessionStorage.getItem("loginStatus");
+        if (loggedInStatus === "true") {
             navigate('/profile')
         } else {
             navigate('/login');
         }
+    }
+
+    function disconnect() {
+        sessionStorage.setItem("loginStatus", "false");
+        navigate('/');
+        window.location.reload();
     }
 
     return(
@@ -30,10 +28,13 @@ function Navbar() {
                     <li><button
                     id='account-button'
                     onClick={accountHandler}>Your account</button></li>
+                    <li><button
+                    id='disconnect-button'
+                    onClick={disconnect}>Disconnect</button></li>
                 </ul>
             </nav>
         </div>
     );
-}
+};
 
 export default Navbar;
