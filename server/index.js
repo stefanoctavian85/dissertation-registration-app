@@ -14,10 +14,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(expressjwt({
-  secret: process.env.SECRET,
-  algorithms: ['HS256'],
-}).unless({ path: ['/login']}));
+
 
 const PORT = process.env.PORT;
 
@@ -51,6 +48,13 @@ app.use(
 app.get("/api-doc.yml", (req, res) => {
   res.json(app.apiDoc);
 });
+
+app.use(expressjwt({
+  secret: process.env.SECRET,
+  algorithms: ['HS256'],
+}).unless({
+  path: ['/login', '/api-doc', '/api-doc.yml']
+}));
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
