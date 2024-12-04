@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path";
 import mongoose from 'mongoose';
-import { MongoClient } from "mongodb";
 import { User } from './db/Account.model.js'
 
 dotenv.config();
@@ -19,21 +18,20 @@ const PORT = process.env.PORT;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const mongodb = new MongoClient(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+
+async function connectToDatabase() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+    console.log("Connected to MongoDB database successfully!");
+  } catch(err) {
+    console.error("Error connecting to database: " + err);
+  }
+}
 
-mongodb.connect()
-    .then(() => {
-        console.log("Connected to MongoDB successfully!");
-    }).catch(() => {
-        console.error("Error connecting to MongoDB " + err);
-    });
-
-const database = mongodb.db("WebDatabase");
-const collection = database.collection("Users");
-
+connectToDatabase();
 
 app.use("/api-doc.yml", express.static(path.join(__dirname, "api-doc.yml")));
 
@@ -52,23 +50,28 @@ app.get("/api-doc.yml", (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const account = await collection.findOne({ username });
+  try {
+    const account = await User.findOne({ username });
 
-  if (!account) {
-    return res.status(400).json({ message: "Invalid username or password!",
+    if (!account) {
+      return res.status(400).json({ message: "Invalid username or password!",
+          success: false,
+      });
+    }
+
+    if (username === account.username && password === account.password) {
+      return res.status(200).json({
+        message: "Login successful!",
+        success: true,
+      });
+    }
+  } catch (err) {
+      console.error("Error during login: " + err);
+      return res.status(500).json({
+        message: "Server error!",
         success: false,
-    });
+      });
   }
-
-  if (username === account.username && password === account.password) {
-    return res.status(200).json({ message: "Login successful!",
-                                  success: true,
-                                });
-  }
-
-  return res.status(400).json({ message: "Invalid username or password!",
-                                success: false,
-                            });
 });
 
 app.listen(PORT, () => {
