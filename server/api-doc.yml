@@ -4,12 +4,6 @@ info:
   version: 1.0.0
   description: API for the Dissertation Registration App.
 
-servers:
-  - url: http://localhost:{port}
-    description: Local server
-    variables:
-      port:
-        default: 3000
 
 paths:
   /login:
