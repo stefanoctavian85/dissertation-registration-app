@@ -7,7 +7,7 @@ function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        const loginStatus = sessionStorage.getItem('loginStatus');
+        const loginStatus = localStorage.getItem('loginStatus');
         if (loginStatus === "true") {
             setIsLoggedIn(true);
         } else {

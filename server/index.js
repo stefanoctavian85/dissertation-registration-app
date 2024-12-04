@@ -7,12 +7,17 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import path from "path";
 import mongoose from 'mongoose';
-import { User } from './db/Account.model.js'
+import { User } from './db/Account.model.js';
+import jwt from 'jsonwebtoken'
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(expressjwt({
+  secret: process.env.SECRET,
+  algorithms: ['HS256'],
+}).unless({ path: ['/login']}));
 
 const PORT = process.env.PORT;
 
@@ -54,15 +59,23 @@ app.post("/login", async (req, res) => {
     const account = await User.findOne({ username });
 
     if (!account) {
-      return res.status(400).json({ message: "Invalid username or password!",
-          success: false,
+      return res.status(400).json({
+        message: "Invalid username or password!",
+        success: false,
       });
     }
 
     if (username === account.username && password === account.password) {
+      const token = jwt.sign(
+        { username: account.username },
+        process.env.SECRET,
+        { expiresIn: "1h" }
+      );
+
       return res.status(200).json({
         message: "Login successful!",
         success: true,
+        token,
       });
     }
   } catch (err) {
@@ -73,6 +86,23 @@ app.post("/login", async (req, res) => {
       });
   }
 });
+
+app.get('/profile', async (req, res) => {
+  const { username } = req.auth;
+
+  const account = await User.findOne({ username });
+
+  if (!account) {
+    res.status(400).json({
+      message: "The user does not exist!",
+    });
+  }
+
+  res.status(200).json({
+    username: account.username,
+    phoneNumber: account.phoneNumber,
+  });
+})
 
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);

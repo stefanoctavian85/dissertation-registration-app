@@ -6,7 +6,7 @@ function Navbar() {
     let navigate = useNavigate();
 
     function accountHandler() {
-        const loggedInStatus = sessionStorage.getItem("loginStatus");
+        const loggedInStatus = localStorage.getItem("loginStatus");
         if (loggedInStatus === "true") {
             navigate('/profile')
         } else {
@@ -15,7 +15,7 @@ function Navbar() {
     }
 
     function disconnect() {
-        sessionStorage.setItem("loginStatus", "false");
+        localStorage.setItem("loginStatus", "false");
         navigate('/');
         window.location.reload();
     }

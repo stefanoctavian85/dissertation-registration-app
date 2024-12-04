@@ -36,12 +36,14 @@ function Login() {
         
         if (data.success) {
             setTimeout(() => {
-                sessionStorage.setItem("loginStatus", "true");
+                localStorage.setItem("loginStatus", "true");
+                localStorage.setItem("username", username);
+                localStorage.setItem("token", data.token);
                 setIsLoggedIn(true);
                 navigate('/')
             }, 1000);
         } else {
-            sessionStorage.setItem("loginStatus", "false");
+            localStorage.setItem("loginStatus", "false");
             setIsLoggedIn(false);
         }
 
