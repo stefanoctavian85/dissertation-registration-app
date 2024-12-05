@@ -53,8 +53,27 @@ app.use(expressjwt({
   secret: process.env.SECRET,
   algorithms: ['HS256'],
 }).unless({
-  path: ['/login', '/api-doc', '/api-doc.yml']
+  path: ['/login', '/api-doc', '/api-doc.yml', '/register']
 }));
+
+app.post("/register", async (req, res) => {
+  const {username, email, password} = req.body;
+  const isStudent = false;
+
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists!' });
+    }
+
+    const newUser = new User({username, password, isStudent, email, phoneNumber: 0, class: ""});
+    await newUser.save();
+    return res.status(201).json({ message: "Register was successful!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Error!" });
+  }
+});
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -83,7 +102,6 @@ app.post("/login", async (req, res) => {
       });
     }
   } catch (err) {
-      console.error("Error during login: " + err);
       return res.status(500).json({
         message: "Server error!",
         success: false,

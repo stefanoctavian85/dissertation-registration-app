@@ -4,6 +4,7 @@ import Navbar from './components/Navbar.jsx';
 import Login from './components/Login.jsx';
 import Home from './components/Home.jsx';
 import Profile from './components/Profile.jsx';
+import Register from './components/Register.jsx';
 
 function App() {
   return(
@@ -11,9 +12,10 @@ function App() {
       <BrowserRouter>
       <Navbar/>
         <Routes>
-            <Route path='/' element={<Home/>}/>
+            <Route path="/" element={<Home/>}/>
+            <Route path="/register" element={<Register/>} />
             <Route path="/login" element={<Login/>} />
-            <Route path='/profile' element={<Profile/>} />
+            <Route path="/profile" element={<Profile/>} />
         </Routes>
       </BrowserRouter>
     </div>

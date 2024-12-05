@@ -3,8 +3,6 @@ info:
   title: Dissertation Registration App API
   version: 1.0.0
   description: API for the Dissertation Registration App.
-
-
 paths:
   /login:
     post:
@@ -55,7 +53,6 @@ paths:
                     example: false
         '500':
           description: Server error during login process.
-
   /profile:
     get:
       summary: Get user profile
@@ -86,6 +83,49 @@ paths:
                   message:
                     type: string
                     example: The user does not exist!
+  /register:
+    post:
+      summary: User registration
+      description: Register a new user with a username, email, and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                email:
+                  type: string
+                  description: The email of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+      responses:
+        '201':
+          description: Registration successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register was successful!
+        '400':
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User already exists!
+        '500':
+          description: Server error during registration process.
   /api-doc:
     get:
       summary: API documentation
@@ -95,7 +135,6 @@ paths:
           description: Swagger UI documentation loaded successfully.
         '404':
           description: API documentation not found.
-
 components:
   securitySchemes:
     BearerAuth:

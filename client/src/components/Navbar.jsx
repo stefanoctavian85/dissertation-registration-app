@@ -14,7 +14,7 @@ function Navbar() {
         }
     }
 
-    function disconnect() {
+    function logout() {
         localStorage.setItem("loginStatus", "false");
         navigate('/');
         window.location.reload();
@@ -24,13 +24,13 @@ function Navbar() {
         <div>
             <nav id='nav-bar'>
                 <ul>
-                    <li><Link to='/'>Home</Link></li>
+                    <li><Link to='/' id='home-button'>Home</Link></li>
                     <li><button
                     id='account-button'
                     onClick={accountHandler}>Your account</button></li>
                     <li><button
-                    id='disconnect-button'
-                    onClick={disconnect}>Disconnect</button></li>
+                    id='logout-button'
+                    onClick={logout}>Logout</button></li>
                 </ul>
             </nav>
         </div>

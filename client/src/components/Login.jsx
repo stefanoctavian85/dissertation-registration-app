@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Login.css'
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -18,8 +19,8 @@ function Login() {
 
     async function submitButton() {
         const userCredentials = {
-            username: username,
-            password: password,
+            username,
+            password,
         };
 
         const response = await fetch('http://localhost:5000/login', {
@@ -51,28 +52,45 @@ function Login() {
         setPassword("");
     }
 
+    function registerButton() {
+        navigate('/register');
+    }
+
     return(
         <div>
             <h1>Login</h1>
-            <input
-                type="text"
-                id="usernameInput"
-                placeholder='Enter username...'
-                value={username}
-                onChange={(event) => submitUsername(event)}/><br/>
-            <input
-                type="password"
-                id="passwordInput"
-                placeholder='Enter password...'
-                value={password}
-                onChange={(event) => submitPassword(event)}/><br/>
-            <button
+            <div id='login-container'>
+                <div className='login-item'>
+                    <label>Username</label>
+                    <input
+                    type="text"
+                    id="usernameInput"
+                    placeholder='Enter username...'
+                    value={username}
+                    onChange={submitUsername}/><br/>
+                </div>
+                <div className='login-item'>
+                    <label>Password</label>
+                    <input
+                    type="password"
+                    id="passwordInput"
+                    placeholder='Enter password...'
+                    value={password}
+                    onChange={submitPassword}/><br/>
+                </div>
+                <button
                 id='login-button'
                 onClick={submitButton}>
                     Login
-            </button>
-
-            <p>{message}</p>
+                </button>
+                <p>You don't have an account?</p>
+                <button
+                id='register-button'
+                onClick={registerButton}>
+                    Sign in
+                </button>
+            </div>
+            <p id='message'>{message}</p>
         </div>
     );
 }
