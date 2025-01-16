@@ -69,7 +69,6 @@ function Request() {
             } else {
                 setMessage(`Error: ${data.message}`);
             }
-
         } catch (err) {
             setErrorMessage(err);
         }

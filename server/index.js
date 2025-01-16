@@ -203,8 +203,6 @@ app.get("/requests", async (req, res) => {
       teacher: id,
     }).populate("student", "firstname lastname");
 
-    console.log(requests);
-
     if (requests.length === 0) {
       return res.status(404).json({
         message: "Requests not found!",
@@ -221,6 +219,38 @@ app.get("/requests", async (req, res) => {
     })
   }
 });
+
+app.post("/change-request-status", async (req, res) => {
+  const { requestId, status, message } = req.body;
+
+  try {
+    const request = await Request.findById(requestId);
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found!",
+      })
+    }
+    
+    console.log(request);
+
+    request.status = status;
+
+    if (status === "rejected") {
+      request.message = message;
+    }
+
+    await request.save();
+
+    return res.status(200).json({
+      message: "Request update successfully!",
+    })
+  } catch(error) {
+    return res.status(401).json({
+      message: "Token expired! Please log in again!",
+    });
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);

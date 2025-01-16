@@ -4,6 +4,7 @@ function TeacherRequests() {
     const [token, setToken] = useState("");
     const [requests, setRequests] = useState([]);
     const [error, setError] = useState("");
+    const [rejectionMessage, setRejectionMessage] = useState("");
 
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
@@ -33,9 +34,30 @@ function TeacherRequests() {
                 setRequests(data.requests);
             })
             .catch(err => setError(err.message));
-    }, [token]);
+    });
 
-    return(
+    function submitRejectionMessage(e) {
+        setRejectionMessage(e.target.value);
+    }
+
+    async function handleRequest(id, status) {
+        const requestResponse = {
+            requestId: id,
+            status,
+            message: rejectionMessage,
+        }
+
+        const response = await fetch("http://localhost:5000/change-request-status", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(requestResponse),
+        });
+    }
+
+    return (
         <div id="teacher-requests-main">
             <p>Check your new requests!</p>
             {requests.length === 0 ? (
@@ -43,12 +65,16 @@ function TeacherRequests() {
             ) : (
                 <ul>
                     {requests.map((requests, index) => {
-                        return <li key={index}>{requests.student.firstname} {requests.student.lastname}</li>
+                        return <li key={index}>{requests.student.firstname} {requests.student.lastname}
+                            <button onClick={() => handleRequest(requests._id, "approved")}>Accept</button>
+                            <input type="text" placeholder="Reason for rejection" onChange={(e) => submitRejectionMessage(e)}/>
+                            <button onClick={() => handleRequest(requests._id, "rejected")}>Reject</button>
+                        </li>
                     })}
                 </ul>
             )}
         </div>
-    ); 
+    );
 }
 
 export default TeacherRequests;
