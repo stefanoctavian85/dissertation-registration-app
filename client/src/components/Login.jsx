@@ -45,6 +45,8 @@ function Login() {
             }, 1000);
         } else {
             localStorage.setItem("loginStatus", "false");
+            localStorage.setItem("username", "");
+            localStorage.setItem("token", "");
             setIsLoggedIn(false);
         }
 

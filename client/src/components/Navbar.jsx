@@ -16,6 +16,8 @@ function Navbar() {
 
     function logout() {
         localStorage.setItem("loginStatus", "false");
+        localStorage.setItem("token", "");
+        localStorage.setItem("username", "");
         navigate('/');
         window.location.reload();
     }

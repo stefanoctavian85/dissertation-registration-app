@@ -1,46 +1,63 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Profile() {
     const [username, setUsername] = useState("");
+    const [firstname, setFirstname] = useState("");
+    const [lastname, setLastname] = useState("");
+    const [isStudent, setIsStudent] = useState(0);
     const [phoneNumber, setPhoneNumber] = useState();
+    const [btnRequestsText, setBtnRequestsText] = useState("");
     const [error, setError] = useState(null);
-    const [message, setMessage] = useState("");
+    const [token, setToken] = useState("");
+
+    let navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("token");
+        setToken(storedToken);
 
-        if (!token) {
-            setError("No token found!");
+        if (!storedToken) {
+            setError("You don't have the authorization to be here! Please log in first!");
             return;
         }
 
         fetch(`http://localhost:5000/profile`, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${token}`,
+                "Authorization": `Bearer ${storedToken}`,
             },
         })
             .then(res => res.json())
             .then(data => {
                 setUsername(data.username);
                 setPhoneNumber(data.phoneNumber);
+                setFirstname(data.firstname);
+                setLastname(data.lastname);
+                setIsStudent(data.isStudent);
+                setBtnRequestsText(data.isStudent ? "Depune o cerere noua" : "Verifica cererile primite");
             })
             .catch(err => setError(err));
-    }, [username, phoneNumber]);
+    }, [username]);
 
     if (error) {
         return(
             <div>
-                <p>An error occured.</p>
-                <p>{error.message}</p>
+                <p>{error}</p>
             </div>
         );
     }
 
+    function requestsHandler() {
+        navigate('/request');
+    }
+
     return(
-        <div>
-            <p>Username: {username}</p>
-            <p>Phone number: {phoneNumber}</p>
+        <div id='profile-main'>
+            <p>Bun venit, {firstname +  " " + lastname}!</p>
+            <div id='requests'>
+                <button onClick={requestsHandler}>{btnRequestsText}</button>
+            </div>
         </div>
     );
 };

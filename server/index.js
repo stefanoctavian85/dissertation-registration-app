@@ -57,8 +57,8 @@ app.use(expressjwt({
 }));
 
 app.post("/register", async (req, res) => {
-  const {username, email, password} = req.body;
-  const isStudent = false;
+  const {username, firstname, lastname, email, password} = req.body;
+  const isStudent = true;
 
   try {
     const existingUser = await User.findOne({ username });
@@ -66,7 +66,7 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: 'User already exists!' });
     }
 
-    const newUser = new User({username, password, isStudent, email, phoneNumber: 0, class: ""});
+    const newUser = new User({username, firstname, lastname, password, isStudent, email, phoneNumber: 0, class: ""});
     await newUser.save();
     return res.status(201).json({ message: "Register was successful!" });
   } catch (error) {
@@ -123,7 +123,24 @@ app.get('/profile', async (req, res) => {
   res.status(200).json({
     username: account.username,
     phoneNumber: account.phoneNumber,
+    firstname: account.firstname,
+    lastname: account.lastname,
+    isStudent: account.isStudent,
   });
+});
+
+app.get("/requests", async (req, res) => {
+  const teachers = await User.find({
+    isStudent: false,
+  });
+
+  if (teachers.length === 0) {
+    res.status(404).json({
+      message: "No teachers found",
+    });
+  } else {
+    res.status(200).json(teachers);
+  }
 })
 
 app.listen(PORT, () => {

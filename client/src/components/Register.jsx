@@ -3,12 +3,22 @@ import './Register.css';
 
 function Register() {
     const [username, setUsername] = useState("");
+    const [firstname, setFirstname] = useState("");
+    const [lastname, setLastname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
 
     function submitUsername(e) {
         setUsername(e.target.value);
+    }
+
+    function submitFirstname(e) {
+        setFirstname(e.target.value);
+    }
+
+    function submitLastname(e) {
+        setLastname(e.target.value);
     }
 
     function submitEmail(e) {
@@ -22,8 +32,10 @@ function Register() {
     async function signinButton() {
         const userCredentials = {
             username,
+            firstname,
+            lastname,
             email,
-            password
+            password,
         };
 
         const response = await fetch('http://localhost:5000/register', {
@@ -51,6 +63,24 @@ function Register() {
                     placeholder='Enter username...'
                     value={username}
                     onChange={submitUsername}></input>
+                </div>
+                <div className='register-item'>
+                <label>First name</label>
+                <input
+                    type='text'
+                    id='firstnameInput'
+                    placeholder='Enter first name...'
+                    value={firstname}
+                    onChange={submitFirstname}></input>
+                </div>
+                <div className='register-item'>
+                <label>Last name</label>
+                <input
+                    type='text'
+                    id='lastnameInput'
+                    placeholder='Enter last name...'
+                    value={lastname}
+                    onChange={submitLastname}></input>
                 </div>
                 <div className='register-item'>
                     <label>Email</label>
