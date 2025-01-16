@@ -109,6 +109,9 @@ Thumbs.db
 
 # ignore environment variable files
 .env
+./package-lock.json
+./package.json
+
 
 # --------------------------------------------------------
 # BEGIN Explictly Allowed Files (i.e. do NOT ignore these)

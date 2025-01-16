@@ -201,7 +201,8 @@ app.get("/requests", async (req, res) => {
 
     const requests = await Request.find({
       teacher: id,
-    });
+    }).populate("student", "firstname lastname");
+
     console.log(requests);
 
     if (requests.length === 0) {

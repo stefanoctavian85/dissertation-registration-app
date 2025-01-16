@@ -22,7 +22,7 @@ function TeacherRequests() {
         })
             .then(res => {
                 if (!res.ok) {
-                    return res.json().then(data => {
+                    return res.json().then(error => {
                         setError(error.message);
                         return;
                     })
@@ -43,7 +43,7 @@ function TeacherRequests() {
             ) : (
                 <ul>
                     {requests.map((requests, index) => {
-                        <li key={index}></li>
+                        return <li key={index}>{requests.student.firstname} {requests.student.lastname}</li>
                     })}
                 </ul>
             )}

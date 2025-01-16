@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ignore environment variable files
+.env
+./package-lock.json
+./package.json
+

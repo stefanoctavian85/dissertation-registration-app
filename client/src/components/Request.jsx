@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 function Request() {
@@ -7,7 +7,7 @@ function Request() {
     const [errorMessage, setErrorMessage] = useState("");
     const [message, setMessage] = useState("");
     const [teachers, setTeachers] = useState([]);
-    
+
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
         setToken(storedToken);
@@ -34,11 +34,11 @@ function Request() {
         }).then(data => {
             setTeachers(data);
         })
-          .catch(err => setError("You don't have the authorization to be here! Please log in first!"));
+            .catch(err => setError("You don't have the authorization to be here! Please log in first!"));
     }, [token]);
 
     if (error) {
-        return(
+        return (
             <div>
                 <p>{error}</p>
             </div>
@@ -70,21 +70,21 @@ function Request() {
                 setMessage(`Error: ${data.message}`);
             }
 
-        } catch(err) {
+        } catch (err) {
             setErrorMessage(err);
         }
     }
 
-    return(
+    return (
         <div id='request-main'>
             <p>Depune o cerere noua!</p>
             {teachers.length === 0 ? (
                 <p>{errorMessage}</p>
             ) : (
                 <ul>
-                    {teachers.map((teacher, index) => (
-                        <li key={index}>{teacher.firstname + " " + teacher.lastname}<button id={`btn-${index}`} onClick={() => submitRequest(teacher._id)}>Trimite cerere</button></li>
-                    ))}
+                    {teachers.map((teacher, index) => {
+                        return <li key={index}>{teacher.firstname + " " + teacher.lastname}<button id={`btn-${index}`} onClick={() => submitRequest(teacher._id)}>Trimite cerere</button></li>
+                    })}
                 </ul>
             )}
             <p>{error}</p>
