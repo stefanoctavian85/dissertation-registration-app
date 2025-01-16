@@ -50,7 +50,7 @@ function Request() {
             ) : (
                 <ul>
                     {teachers.map((teacher, index) => (
-                        <li key={index}>{teacher.firstname + " " + teacher.lastname}</li>
+                        <li key={index}>{teacher.firstname + " " + teacher.lastname}<button id={`btn-${index}`}>Trimite cerere</button></li>
                     ))}
                 </ul>
             )}

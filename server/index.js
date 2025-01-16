@@ -8,6 +8,7 @@ import { dirname } from "path";
 import path from "path";
 import mongoose from 'mongoose';
 import { User } from './db/Account.model.js';
+import { Request } from "./db/Request.model.js";
 import jwt from 'jsonwebtoken'
 
 dotenv.config();

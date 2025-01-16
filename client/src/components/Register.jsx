@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './Register.css';
 
 function Register() {
@@ -8,6 +8,7 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
     function submitUsername(e) {
         setUsername(e.target.value);
@@ -29,7 +30,17 @@ function Register() {
         setPassword(e.target.value);
     }
 
-    async function signinButton() {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        setMessage("");
+        setError("");
+
+        if (!username || !firstname || !lastname || !password || !email) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
         const userCredentials = {
             username,
             firstname,
@@ -37,75 +48,85 @@ function Register() {
             email,
             password,
         };
-
-        const response = await fetch('http://localhost:5000/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userCredentials),
-        });
-
-        const data = await response.json();
-
-        setMessage(data.message);
+        try {
+            const res = await fetch('http://localhost:5000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userCredentials),
+            });
+    
+            const data = await res.json();
+    
+            if (res.ok) {
+                setMessage(data.message);
+            } else {
+                setError(data.message);
+            }
+        } catch(err) {
+            setError("Something went wrong. Please try again!");
+        }
     }
 
-    return(
+    return (
         <div>
             <h1>Register</h1>
             <div className='register-container'>
-                <div className='register-item'>
-                <label>Username</label>
-                <input
-                    type='text'
-                    id='usernameInput'
-                    placeholder='Enter username...'
-                    value={username}
-                    onChange={submitUsername}></input>
-                </div>
-                <div className='register-item'>
-                <label>First name</label>
-                <input
-                    type='text'
-                    id='firstnameInput'
-                    placeholder='Enter first name...'
-                    value={firstname}
-                    onChange={submitFirstname}></input>
-                </div>
-                <div className='register-item'>
-                <label>Last name</label>
-                <input
-                    type='text'
-                    id='lastnameInput'
-                    placeholder='Enter last name...'
-                    value={lastname}
-                    onChange={submitLastname}></input>
-                </div>
-                <div className='register-item'>
-                    <label>Email</label>
-                    <input
-                        type='email'
-                        id='emailInput'
-                        placeholder='Enter email...'
-                        value={email}
-                        onChange={submitEmail}></input>
-                </div>
-                <div className='register-item'>
-                    <label>Password</label>
-                    <input
-                    type='password'
-                    id='passwordInput'
-                    placeholder='Enter password...'
-                    value={password}
-                    onChange={submitPassword}></input>
-                </div>
-                <button
-                    id='signin-button'
-                    onClick={signinButton}
-                >Sign in</button>
+                <form id='form-register' onSubmit={handleSubmit}>
+                    <div className='register-item'>
+                        <label>Username</label>
+                        <input
+                            type='text'
+                            id='usernameInput'
+                            placeholder='Enter username...'
+                            value={username}
+                            onChange={submitUsername}></input>
+                    </div>
+                    <div className='register-item'>
+                        <label>First name</label>
+                        <input
+                            type='text'
+                            id='firstnameInput'
+                            placeholder='Enter first name...'
+                            value={firstname}
+                            onChange={submitFirstname}></input>
+                    </div>
+                    <div className='register-item'>
+                        <label>Last name</label>
+                        <input
+                            type='text'
+                            id='lastnameInput'
+                            placeholder='Enter last name...'
+                            value={lastname}
+                            onChange={submitLastname}></input>
+                    </div>
+                    <div className='register-item'>
+                        <label>Email</label>
+                        <input
+                            type='email'
+                            id='emailInput'
+                            placeholder='Enter email...'
+                            value={email}
+                            onChange={submitEmail}></input>
+                    </div>
+                    <div className='register-item'>
+                        <label>Password</label>
+                        <input
+                            type='password'
+                            id='passwordInput'
+                            placeholder='Enter password...'
+                            value={password}
+                            onChange={submitPassword}></input>
+                    </div>
+                    <button
+                        id='signin-button'
+                        type='submit'
+                    >Sign in</button>
+                </form>
             </div>
-            <p id='message'>{message}</p>
+            {error && <p id='error-message'>{error}</p>}
+            {message && <p id='message'>{message}</p>}
         </div>
     );
 }
