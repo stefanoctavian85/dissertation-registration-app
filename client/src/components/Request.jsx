@@ -1,20 +1,23 @@
 import React, {useState, useEffect} from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 function Request() {
     const [token, setToken] = useState("");
     const [error, setError] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [teachers, setTeachers] = useState([]);
     
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
         setToken(storedToken);
+
         if (!storedToken) {
             setError("You don't have the authorization to be here! Please log in first!");
             return;
         }
 
-        fetch("http://localhost:5000/requests", {
+        fetch("http://localhost:5000/teachers", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${storedToken}`,
@@ -42,6 +45,36 @@ function Request() {
         );
     }
 
+    async function submitRequest(teacherId) {
+        const storedToken = localStorage.getItem("token");
+        const studentId = jwtDecode(token).id;
+
+        try {
+            const res = await fetch(`http://localhost:5000/submit-request/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${storedToken}`,
+                },
+                body: JSON.stringify({
+                    teacherId,
+                    studentId,
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setMessage(`Cererea a fost trimisa cu succes catre profesorul ${data.teacherName}`);
+            } else {
+                setMessage(`Eroare: ${data.message}`);
+            }
+
+        } catch(err) {
+            setErrorMessage(err);
+        }
+    }
+
     return(
         <div id='request-main'>
             <p>Depune o cerere noua!</p>
@@ -50,10 +83,11 @@ function Request() {
             ) : (
                 <ul>
                     {teachers.map((teacher, index) => (
-                        <li key={index}>{teacher.firstname + " " + teacher.lastname}<button id={`btn-${index}`}>Trimite cerere</button></li>
+                        <li key={index}>{teacher.firstname + " " + teacher.lastname}<button id={`btn-${index}`} onClick={() => submitRequest(teacher._id)}>Trimite cerere</button></li>
                     ))}
                 </ul>
             )}
+            <p>{error}</p>
         </div>
     );
 }

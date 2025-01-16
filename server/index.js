@@ -91,7 +91,7 @@ app.post("/login", async (req, res) => {
 
     if (username === account.username && password === account.password) {
       const token = jwt.sign(
-        { username: account.username },
+        { username: account.username, id: account._id.toString() },
         process.env.SECRET,
         { expiresIn: "1h" }
       );
@@ -130,7 +130,7 @@ app.get('/profile', async (req, res) => {
   });
 });
 
-app.get("/requests", async (req, res) => {
+app.get("/teachers", async (req, res) => {
   const teachers = await User.find({
     isStudent: false,
   });
@@ -141,6 +141,37 @@ app.get("/requests", async (req, res) => {
     });
   } else {
     res.status(200).json(teachers);
+  }
+});
+
+app.post("/submit-request/", async (req, res) => {
+  const { teacherId, studentId } = req.body;
+
+  try {
+    const student = await User.findById(studentId);
+    const teacher = await User.findById(teacherId);
+
+    if (!student || !teacher) {
+      return res.status(404).json({
+        message: "Student or teacher not found!"
+      });
+    }
+
+    const newRequest = new Request({
+      student: studentId,
+      teacher: teacherId,
+      status: "pending",
+    });
+
+    await newRequest.save();
+
+    return res.status(201).json({
+      message: `Cerere trimisa cu succes catre profesorul ${teacher.firstname + " " + teacher.lastname}`,
+    });
+  } catch(err) {
+    return res.status(500).json({
+      message: "A aparut o eroare in momentul in care ati trimis cererea. Va rugam sa incercati mai tarziu!",
+    });
   }
 })
 
