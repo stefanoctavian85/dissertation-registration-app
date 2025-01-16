@@ -6,6 +6,7 @@ import Home from './components/Home.jsx';
 import Profile from './components/Profile.jsx';
 import Register from './components/Register.jsx';
 import Request from './components/Request.jsx';
+import TeacherRequests from './components/TeacherRequests.jsx';
 
 function App() {
   return(
@@ -18,6 +19,7 @@ function App() {
             <Route path="/login" element={<Login/>} />
             <Route path="/profile" element={<Profile/>} />
             <Route path="/request" element={<Request/>} />
+            <Route path='/teacher-requests' element={<TeacherRequests/>} />
         </Routes>
       </BrowserRouter>
     </div>

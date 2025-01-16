@@ -37,7 +37,7 @@ function Profile() {
                 setIsStudent(data.isStudent);
                 setBtnRequestsText(data.isStudent ? "Depune o cerere noua" : "Verifica cererile primite");
             })
-            .catch(err => setError(err));
+            .catch(err => setError("You don't have the authorization to be here! Please log in first!"));
     }, [username]);
 
     if (error) {
@@ -49,10 +49,15 @@ function Profile() {
     }
 
     function requestsHandler() {
-        navigate('/request');
+        if (isStudent) {
+            navigate('/request');
+        } else {
+            navigate('/teacher-requests');
+        }
     }
 
     return(
+        
         <div id='profile-main'>
             <p>Bun venit, {firstname +  " " + lastname}!</p>
             <div id='requests'>

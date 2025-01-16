@@ -29,7 +29,7 @@ async function connectToDatabase() {
       useUnifiedTopology: true,
     });
     console.log("Connected to MongoDB database successfully!");
-  } catch(err) {
+  } catch (err) {
     console.error("Error connecting to database: " + err);
   }
 }
@@ -58,7 +58,7 @@ app.use(expressjwt({
 }));
 
 app.post("/register", async (req, res) => {
-  const {username, firstname, lastname, email, password} = req.body;
+  const { username, firstname, lastname, email, password } = req.body;
   const isStudent = true;
 
   try {
@@ -67,7 +67,7 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: 'User already exists!' });
     }
 
-    const newUser = new User({username, firstname, lastname, password, isStudent, email, phoneNumber: 0, class: ""});
+    const newUser = new User({ username, firstname, lastname, password, isStudent, email, phoneNumber: 0, class: "" });
     await newUser.save();
     return res.status(201).json({ message: "Register was successful!" });
   } catch (error) {
@@ -103,48 +103,60 @@ app.post("/login", async (req, res) => {
       });
     }
   } catch (err) {
-      return res.status(500).json({
-        message: "Server error!",
-        success: false,
-      });
+    return res.status(500).json({
+      message: "Server error!",
+      success: false,
+    });
   }
 });
 
 app.get('/profile', async (req, res) => {
   const { username } = req.auth;
 
-  const account = await User.findOne({ username });
+  try {
+    const account = await User.findOne({ username });
 
-  if (!account) {
-    res.status(400).json({
-      message: "The user does not exist!",
+    if (!account) {
+      res.status(400).json({
+        message: "The user does not exist!",
+      });
+    }
+
+    res.status(200).json({
+      username: account.username,
+      phoneNumber: account.phoneNumber,
+      firstname: account.firstname,
+      lastname: account.lastname,
+      isStudent: account.isStudent,
+    });
+  } catch (err) {
+    res.status(401).json({
+      message: "Token expired! Please log in again!",
     });
   }
-
-  res.status(200).json({
-    username: account.username,
-    phoneNumber: account.phoneNumber,
-    firstname: account.firstname,
-    lastname: account.lastname,
-    isStudent: account.isStudent,
-  });
 });
 
 app.get("/teachers", async (req, res) => {
-  const teachers = await User.find({
-    isStudent: false,
-  });
-
-  if (teachers.length === 0) {
-    res.status(404).json({
-      message: "No teachers found",
+  try {
+    const teachers = await User.find({
+      isStudent: false,
     });
-  } else {
-    res.status(200).json(teachers);
+
+    if (teachers.length === 0) {
+      res.status(404).json({
+        message: "No teachers found",
+      });
+    } else {
+      res.status(200).json(teachers);
+    }
+  } catch (err) {
+    res.status(401).json({
+      message: "Token expired! Please log in again!",
+    })
   }
 });
 
-app.post("/submit-request/", async (req, res) => {
+app.post("/submit-request", async (req, res) => {
   const { teacherId, studentId } = req.body;
 
   try {
@@ -166,14 +178,48 @@ app.post("/submit-request/", async (req, res) => {
     await newRequest.save();
 
     return res.status(201).json({
-      message: `Cerere trimisa cu succes catre profesorul ${teacher.firstname + " " + teacher.lastname}`,
+      message: `Request successfully sent to ${teacher.firstname + " " + teacher.lastname}`,
     });
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
-      message: "A aparut o eroare in momentul in care ati trimis cererea. Va rugam sa incercati mai tarziu!",
+      message: "An error occured when you sent the request. Please try again later!",
     });
   }
-})
+});
+
+app.get("/requests", async (req, res) => {
+  const { id, username } = req.auth;
+
+  try {
+    const teacher = await User.findById(id);
+
+    if (!teacher) {
+      return res.status(404).json({
+        message: "Teacher not found!",
+      })
+    }
+
+    const requests = await Request.find({
+      teacher: id,
+    });
+    console.log(requests);
+
+    if (requests.length === 0) {
+      return res.status(404).json({
+        message: "Requests not found!",
+      })
+    }
+
+    return res.status(200).json({
+      requests,
+    });
+
+  } catch (err) {
+    return res.status(401).json({
+      message: "Token expired! Please log in again!",
+    })
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);

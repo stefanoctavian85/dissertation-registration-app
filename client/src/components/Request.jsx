@@ -34,7 +34,7 @@ function Request() {
         }).then(data => {
             setTeachers(data);
         })
-          .catch(err => setError(err));
+          .catch(err => setError("You don't have the authorization to be here! Please log in first!"));
     }, [token]);
 
     if (error) {
@@ -65,9 +65,9 @@ function Request() {
             const data = await res.json();
 
             if (res.ok) {
-                setMessage(`Cererea a fost trimisa cu succes catre profesorul ${data.teacherName}`);
+                setMessage(`Request successfully sent to ${data.teacherName}`);
             } else {
-                setMessage(`Eroare: ${data.message}`);
+                setMessage(`Error: ${data.message}`);
             }
 
         } catch(err) {
