@@ -1,4 +1,4 @@
-# Dissertation Registration App
+# Dissertation Registration App (IN PROGRESS)
 
 ## Overview
 
