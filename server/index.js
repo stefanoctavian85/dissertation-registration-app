@@ -232,8 +232,6 @@ app.post("/change-request-status", async (req, res) => {
       })
     }
     
-    console.log(request);
-
     request.status = status;
 
     if (status === "rejected") {
@@ -250,7 +248,30 @@ app.post("/change-request-status", async (req, res) => {
       message: "Token expired! Please log in again!",
     });
   }
-})
+});
+
+app.post("/approved-requests-count", async (req, res) => {
+  const { id } = req.auth;
+
+  try {
+    const teacherRequests = await Request.countDocuments({teacher: id, status: "approved"});
+
+    if (!teacherRequests) {
+      return res.status(404).json({
+        message: "Approved requests not found",
+      });
+    }
+
+    return res.status(200).json({
+      approvedRequests: teacherRequests,
+    });
+
+  } catch(error) {
+    return res.status(401).json({
+      message: "Token expired! Please log in again!",
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);

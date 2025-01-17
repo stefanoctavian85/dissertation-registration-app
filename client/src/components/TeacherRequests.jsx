@@ -4,6 +4,7 @@ function TeacherRequests() {
   const [token, setToken] = useState("");
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
+  const [requestApproved, setRequestApproved] = useState(0);
   const [rejectionMessage, setRejectionMessage] = useState("");
 
   useEffect(() => {
@@ -20,7 +21,7 @@ function TeacherRequests() {
     fetch("http://localhost:8080/requests", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${storedToken}`,
+        "Authorization": `Bearer ${storedToken}`,
       },
     })
       .then((res) => {
@@ -36,7 +37,26 @@ function TeacherRequests() {
         setRequests(data.requests);
       })
       .catch((err) => setError(err.message));
-  });
+
+    fetch("http://localhost:8080/approved-requests-count", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${storedToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          setError(error.message);
+          return;
+        } else {
+          return res.json();
+        }
+      })
+      .then((data) => {
+        setRequestApproved(data.approvedRequests);
+        console.log(data.approvedRequests);
+      })
+  }, []);
 
   function submitRejectionMessage(e) {
     setRejectionMessage(e.target.value);
@@ -68,31 +88,35 @@ function TeacherRequests() {
       {requests.length === 0 ? (
         <p>{error}</p>
       ) : (
-        <ul>
-          {requests.map(
-            (request, index) =>
-              request.status === "pending" && (
-                <li key={index}>
-                  {request.student.firstname} {request.student.lastname}
-                  <button
-                    onClick={() => handleRequest(request._id, "approved")}
-                  >
-                    Accept
-                  </button>
-                  <input
-                    type="text"
-                    placeholder="Reason for rejection"
-                    onChange={(e) => submitRejectionMessage(e)}
-                  />
-                  <button
-                    onClick={() => handleRequest(request._id, "rejected")}
-                  >
-                    Reject
-                  </button>
-                </li>
-              )
-          )}
-        </ul>
+        <div>
+          <p>Number of approved requests: {requestApproved}/5</p>
+          <ul>
+            {requests.filter(request => request.status === "pending").length > 0 ? (
+              requests.map(
+                (request, index) =>
+                  request.status === "pending" && (
+                    <li key={index}>
+                      {request.student.firstname} {request.student.lastname}
+                      <button
+                        onClick={() => handleRequest(request._id, "approved")}
+                      >
+                        Accept
+                      </button>
+                      <input
+                        type="text"
+                        placeholder="Reason for rejection"
+                        onChange={(e) => submitRejectionMessage(e)}
+                      />
+                      <button
+                        onClick={() => handleRequest(request._id, "rejected")}
+                      >
+                        Reject
+                      </button>
+                    </li>
+                  ))
+            ) : (<p>You don't have new requests!</p>)}
+          </ul>
+        </div>
       )}
     </div>
   );
