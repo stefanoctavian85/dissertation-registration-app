@@ -64,17 +64,19 @@ function TeacherRequests() {
                 <p>{error}</p>
             ) : (
                 <ul>
-                    {requests.map((requests, index) => {
-                        return <li key={index}>{requests.student.firstname} {requests.student.lastname}
-                            <button onClick={() => handleRequest(requests._id, "approved")}>Accept</button>
-                            <input type="text" placeholder="Reason for rejection" onChange={(e) => submitRejectionMessage(e)}/>
-                            <button onClick={() => handleRequest(requests._id, "rejected")}>Reject</button>
+                    {requests.map((request, index) => request.status === "pending" && (
+                        <li key={index}>{request.student.firstname} {request.student.lastname}
+                            <button onClick={() => handleRequest(request._id, "approved")}>Accept</button>
+                            <input type="text" placeholder="Reason for rejection" onChange={(e) => submitRejectionMessage(e)} />
+                            <button onClick={() => handleRequest(request._id, "rejected")}>Reject</button>
                         </li>
-                    })}
+                    ))}
                 </ul>
             )}
         </div>
     );
 }
+
+// 
 
 export default TeacherRequests;
