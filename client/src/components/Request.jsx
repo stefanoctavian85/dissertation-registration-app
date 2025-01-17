@@ -4,7 +4,6 @@ import { jwtDecode } from "jwt-decode";
 function Request() {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
   const [teachers, setTeachers] = useState([]);
 
@@ -28,7 +27,7 @@ function Request() {
       .then((res) => {
         if (!res.ok) {
           return res.json().then((data) => {
-            setErrorMessage(data.message);
+            setMessage(data.message);
             return;
           });
         } else {
@@ -57,52 +56,49 @@ function Request() {
     const storedToken = localStorage.getItem("token");
     const studentId = jwtDecode(token).id;
 
-    try {
-      const res = await fetch(`http://localhost:8080/submit-request/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${storedToken}`,
-        },
-        body: JSON.stringify({
-          teacherId,
-          studentId,
-        }),
-      });
 
-      const data = await res.json();
+    const res = await fetch(`http://localhost:8080/submit-request/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${storedToken}`,
+      },
+      body: JSON.stringify({
+        teacherId,
+        studentId,
+      }),
+    });
 
-      if (res.ok) {
-        setMessage(`Request successfully sent to ${data.teacherName}`);
-      } else {
-        setMessage(`Error: ${data.message}`);
-      }
-    } catch (err) {
-      setErrorMessage(err);
-    }
+    const data = await res.json();
+
+    setMessage(data.message);
   }
 
   return (
     <div id="request-main">
       <p>Depune o cerere noua!</p>
       {teachers.length === 0 ? (
-        <p>{errorMessage}</p>
+        <p>{message}</p>
       ) : (
-        <ul>
-          {teachers.map((teacher, index) => {
-            return (
-              <li key={index}>
-                {teacher.firstname + " " + teacher.lastname}
-                <button
-                  id={`btn-${index}`}
-                  onClick={() => submitRequest(teacher._id)}
-                >
-                  Trimite cerere
-                </button>
-              </li>
-            );
-          })}
+        <div>
+          <ul>
+            {teachers.map((teacher, index) => {
+              return (
+                <li key={index}>
+                  {teacher.firstname + " " + teacher.lastname}
+                  <button
+                    id={`btn-${index}`}
+                    onClick={() => submitRequest(teacher._id)}
+                  >
+                    Trimite cerere
+                  </button>
+                </li>
+              );
+            })
+            }
         </ul>
+        <p>{message}</p>
+        </div>
       )}
       <p>{error}</p>
     </div>

@@ -169,6 +169,13 @@ app.post("/submit-request", async (req, res) => {
       });
     }
 
+    const ifRequestExists = await Request.find({student, teacher});
+    if (ifRequestExists.length !== 0) {
+      return res.status(404).json({
+        message: "Request already exists!",
+      })
+    }
+
     const newRequest = new Request({
       student: studentId,
       teacher: teacherId,
@@ -176,6 +183,7 @@ app.post("/submit-request", async (req, res) => {
     });
 
     await newRequest.save();
+    console.log(teacher.firstname);
 
     return res.status(201).json({
       message: `Request successfully sent to ${teacher.firstname + " " + teacher.lastname}`,
