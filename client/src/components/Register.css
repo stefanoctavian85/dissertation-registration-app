@@ -1,0 +1,39 @@
+.register-container {
+    border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 30px;
+    width: fit-content;
+    margin: auto;
+}
+
+.register-item label {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: white;
+}
+
+.register-item {
+    margin-bottom: 10px;
+}
+
+.register-container input {
+    max-width: 200px;
+    display: block;
+    border-radius: 5px;
+}
+
+.register-container button {
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: hsl(179, 84%, 52%);
+}
+
+#message {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+}
