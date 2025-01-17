@@ -4,7 +4,8 @@ function TeacherRequests() {
   const [token, setToken] = useState("");
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
-  const [requestApproved, setRequestApproved] = useState(0);
+  const [requestApprovedNr, setRequestApprovedNr] = useState(0);
+  const [needsUpdate, setNeedsUpdate] = useState(true);
   const [rejectionMessage, setRejectionMessage] = useState("");
 
   useEffect(() => {
@@ -18,45 +19,47 @@ function TeacherRequests() {
       return;
     }
 
-    fetch("http://localhost:8080/requests", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${storedToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((error) => {
+    if (needsUpdate) {
+      fetch("http://localhost:8080/requests", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((error) => {
+              setError(error.message);
+              return;
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          setRequests(data.requests);
+          setNeedsUpdate(false);
+        })
+        .catch((err) => setError(err.message));
+  
+      fetch("http://localhost:8080/approved-requests-count", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
             setError(error.message);
             return;
-          });
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setRequests(data.requests);
-      })
-      .catch((err) => setError(err.message));
-
-    fetch("http://localhost:8080/approved-requests-count", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${storedToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          setError(error.message);
-          return;
-        } else {
-          return res.json();
-        }
-      })
-      .then((data) => {
-        setRequestApproved(data.approvedRequests);
-        console.log(data.approvedRequests);
-      })
-  }, []);
+          } else {
+            return res.json();
+          }
+        })
+        .then((data) => {
+          setRequestApprovedNr(data.approvedRequests);
+        })
+    }
+  });
 
   function submitRejectionMessage(e) {
     setRejectionMessage(e.target.value);
@@ -69,7 +72,7 @@ function TeacherRequests() {
       message: rejectionMessage,
     };
 
-    const response = await fetch(
+    const res = await fetch(
       "http://localhost:8080/change-request-status",
       {
         method: "POST",
@@ -80,6 +83,10 @@ function TeacherRequests() {
         body: JSON.stringify(requestResponse),
       }
     );
+
+    if (res.ok) {
+      setNeedsUpdate(true);
+    }
   }
 
   return (
@@ -89,8 +96,9 @@ function TeacherRequests() {
         <p>{error}</p>
       ) : (
         <div>
-          <p>Number of approved requests: {requestApproved}/5</p>
-          <ul>
+          <p>Number of approved requests: {requestApprovedNr}/5</p>
+          {requestApprovedNr < 5 ? (
+            <ul>
             {requests.filter(request => request.status === "pending").length > 0 ? (
               requests.map(
                 (request, index) =>
@@ -116,12 +124,13 @@ function TeacherRequests() {
                   ))
             ) : (<p>You don't have new requests!</p>)}
           </ul>
+          ) : (
+            <p>You have reached the maximum number of requests!</p>
+          )}
         </div>
       )}
     </div>
   );
 }
-
-//
 
 export default TeacherRequests;
