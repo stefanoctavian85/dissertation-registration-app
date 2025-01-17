@@ -71,8 +71,9 @@ app.post("/register", async (req, res) => {
     await newUser.save();
     return res.status(201).json({ message: "Register was successful!" });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Error!" });
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
   }
 });
 
@@ -104,7 +105,7 @@ app.post("/login", async (req, res) => {
     }
   } catch (err) {
     return res.status(500).json({
-      message: "Server error!",
+      message: "An error occured when you sent the request. Please try again later!",
       success: false,
     });
   }
@@ -117,7 +118,7 @@ app.get('/profile', async (req, res) => {
     const account = await User.findOne({ username });
 
     if (!account) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "The user does not exist!",
       });
     }
@@ -130,8 +131,8 @@ app.get('/profile', async (req, res) => {
       isStudent: account.isStudent,
     });
   } catch (err) {
-    res.status(401).json({
-      message: "Token expired! Please log in again!",
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
     });
   }
 });
@@ -143,16 +144,16 @@ app.get("/teachers", async (req, res) => {
     });
 
     if (teachers.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "No teachers found",
       });
     } else {
-      res.status(200).json(teachers);
+      return res.status(200).json(teachers);
     }
   } catch (err) {
-    res.status(401).json({
-      message: "Token expired! Please log in again!",
-    })
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
   }
 });
 
@@ -183,7 +184,6 @@ app.post("/submit-request", async (req, res) => {
     });
 
     await newRequest.save();
-    console.log(teacher.firstname);
 
     return res.status(201).json({
       message: `Request successfully sent to ${teacher.firstname + " " + teacher.lastname}`,
@@ -222,9 +222,9 @@ app.get("/requests", async (req, res) => {
     });
 
   } catch (err) {
-    return res.status(401).json({
-      message: "Token expired! Please log in again!",
-    })
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
   }
 });
 
@@ -252,13 +252,13 @@ app.post("/change-request-status", async (req, res) => {
       message: "Request update successfully!",
     })
   } catch(error) {
-    return res.status(401).json({
-      message: "Token expired! Please log in again!",
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
     });
   }
 });
 
-app.post("/approved-requests-count", async (req, res) => {
+app.get("/approved-requests-count", async (req, res) => {
   const { id } = req.auth;
 
   try {
@@ -275,8 +275,33 @@ app.post("/approved-requests-count", async (req, res) => {
     });
 
   } catch(error) {
-    return res.status(401).json({
-      message: "Token expired! Please log in again!",
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
+  }
+});
+
+app.get("/sent-requests", async (req, res) => {
+  const { id } = req.auth;
+
+  try {
+    const sentRequests = await Request.find({student: id})
+    .populate("teacher", "firstname lastname");
+
+    if (sentRequests.length === 0) {
+      return res.status(404).json({
+        message: "You didn't send any request yet!",
+      });
+    }
+
+    console.log(sentRequests);
+
+    return res.status(200).json({
+      sentRequests,
+    });
+  } catch(err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
     });
   }
 });

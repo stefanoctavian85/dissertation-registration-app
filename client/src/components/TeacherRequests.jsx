@@ -42,7 +42,7 @@ function TeacherRequests() {
         .catch((err) => setError(err.message));
   
       fetch("http://localhost:8080/approved-requests-count", {
-        method: "POST",
+        method: "GET",
         headers: {
           "Authorization": `Bearer ${storedToken}`,
         },

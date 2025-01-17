@@ -6,6 +6,7 @@ function Request() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [teachers, setTeachers] = useState([]);
+  const [sentRequests, setSentRequest] = useState([]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -21,7 +22,7 @@ function Request() {
     fetch("http://localhost:8080/teachers", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${storedToken}`,
+        "Authorization": `Bearer ${storedToken}`,
       },
     })
       .then((res) => {
@@ -42,7 +43,25 @@ function Request() {
           "You don't have the authorization to be here! Please log in first!"
         )
       );
-  }, [token]);
+
+      fetch("http://localhost:8080/sent-requests", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+        }
+      })
+        .then((res) => {
+          if (!res.ok) {
+            setError(error.message);
+            return;
+          } else {
+            return res.json();
+          }
+        })
+        .then((data) => {
+          setSentRequest(data.sentRequests);
+        })
+  }, []);
 
   if (error) {
     return (
@@ -100,6 +119,21 @@ function Request() {
         <p>{message}</p>
         </div>
       )}
+      <div>
+        {sentRequests.length !== 0 ? (
+          <div>
+            <ul>
+              {sentRequests.map((request, index) => {
+                return (
+                  <li key={index}>
+                    {request.teacher.firstname} {request.teacher.lastname} - {request.status}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ) : (<p>You didn't send any request yet!</p>)}
+      </div>
       <p>{error}</p>
     </div>
   );
