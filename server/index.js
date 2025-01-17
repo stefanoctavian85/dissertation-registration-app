@@ -294,8 +294,6 @@ app.get("/sent-requests", async (req, res) => {
       });
     }
 
-    console.log(sentRequests);
-
     return res.status(200).json({
       sentRequests,
     });
