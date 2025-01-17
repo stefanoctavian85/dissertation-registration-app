@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  title: Dissertation Registration App API
+  version: 1.0.0
+  description: API for the Dissertation Registration App.
+paths:
+  /login:
+    post:
+      summary: User login
+      description: Authenticate a user by providing a username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+      responses:
+        '200':
+          description: Login successful and returns a JWT token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful!
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: JWT token for authentication.
+        '400':
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid username or password!
+                  success:
+                    type: boolean
+                    example: false
+        '500':
+          description: Server error during login process.
+  /profile:
+    get:
+      summary: Get user profile
+      description: Retrieve the profile information of the currently authenticated user.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile data of the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    description: The username of the user.
+                  phoneNumber:
+                    type: number
+                    description: The phone number of the user.
+        '400':
+          description: The user does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The user does not exist!
+  /register:
+    post:
+      summary: User registration
+      description: Register a new user with a username, email, and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                email:
+                  type: string
+                  description: The email of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+      responses:
+        '201':
+          description: Registration successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register was successful!
+        '400':
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User already exists!
+        '500':
+          description: Server error during registration process.
+  /api-doc:
+    get:
+      summary: API documentation
+      description: Access the Swagger API documentation.
+      responses:
+        '200':
+          description: Swagger UI documentation loaded successfully.
+        '404':
+          description: API documentation not found.
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
