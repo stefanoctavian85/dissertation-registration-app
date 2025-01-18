@@ -281,12 +281,6 @@ app.get("/approved-requests-count", async (req, res) => {
   try {
     const teacherRequests = await Request.countDocuments({teacher: id, status: "approved"});
 
-    if (!teacherRequests) {
-      return res.status(404).json({
-        message: "Approved requests not found",
-      });
-    }
-
     return res.status(200).json({
       approvedRequests: teacherRequests,
     });
@@ -324,7 +318,6 @@ app.get("/sent-requests", async (req, res) => {
 app.post("/send-final-application", upload.single("file"), async (req, res) => {
   const file = req.file;
   const {student, teacher} = req.body;
-  const fileExtension = path.extname(file.originalname);
 
   try {
     const request = await Request.findOne({student, teacher});
@@ -363,13 +356,12 @@ app.get("/final-applications", async (req, res) => {
       })
     }
 
-    const filteredRequests = requests.filter((request) => request.fileUrl && request.fileUrl.length > 0);
+    const filteredRequests = requests.filter((request) => request.fileUrl && request.fileUrl.length > 0 && request.status === "approved");
 
     return res.status(200).json({
       filteredRequests,
     });
   } catch(err) {
-    console.log(err);
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -396,6 +388,56 @@ app.get("/download", (req, res) => {
       console.error(error);
     }
   })
+});
+
+app.post("/reject-final-application", async (req, res) => {
+  const { status, id, student } = req.body;
+  try {
+    const request = await Request.findOne({_id: id, student});
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found!",
+      });
+    }
+
+    request.status = status;
+    await request.save();
+  } catch(err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
+  }
+});
+
+app.post("/accept-final-application", upload.single("file"), async (req, res) => {
+  const file = req.file;
+  const { id, student, status } = req.body;
+  
+  try {
+    const request = await Request.findOne({_id: id, student});
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found!",
+      })
+    }
+
+    request.status = status;
+
+    let filePath = path.normalize(file.path);
+    filePath = filePath.replace(/\\/g, "/");
+
+    request.fileUrl = filePath;
+    await request.save();
+    return res.status(200).json({
+      message: "Application accepted!",
+    });
+  } catch(err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    })
+  }
 });
 
 app.listen(PORT, () => {

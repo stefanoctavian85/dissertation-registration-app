@@ -8,6 +8,11 @@ function TeacherRequests() {
   const [needsUpdate, setNeedsUpdate] = useState(true);
   const [rejectionMessage, setRejectionMessage] = useState("");
   const [finalApplications, setFinalApplications] = useState([]);
+  const [file, setFile] = useState("");
+
+  const submitFile = (e) => {
+    setFile(e.target.files[0]);
+  }
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -31,7 +36,7 @@ function TeacherRequests() {
           if (!res.ok) {
             return res.json().then((error) => {
               setError(error.message);
-              return;
+              return res.json();
             });
           }
           return res.json();
@@ -51,34 +56,36 @@ function TeacherRequests() {
         .then((res) => {
           if (!res.ok) {
             setError(error.message);
-            return;
+            return res.json();
           } else {
             return res.json();
           }
         })
         .then((data) => {
           setRequestApprovedNr(data.approvedRequests);
+          setNeedsUpdate(true);
         })
         .catch((err) => {
           setError(err);
-        }) 
-    }
+        });
 
-    fetch("http://localhost:8080/final-applications", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${storedToken}`,
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        setFinalApplications(data.filteredRequests);
-      })
-      .catch((err) => {
-        setError(err);
-      });
+        fetch("http://localhost:8080/final-applications", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${storedToken}`,
+          },
+        })
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            setFinalApplications(data.filteredRequests);
+            setNeedsUpdate(false);
+          })
+          .catch((err) => {
+            setError(err);
+          });
+    }
   }, []);
 
   function submitRejectionMessage(e) {
@@ -136,6 +143,51 @@ function TeacherRequests() {
       })
   }
 
+  const handleFinalApplication = async (e, reqId, studentId, file) => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+
+    console.log(file);
+    
+    if (!storedToken) {
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
+      return;
+    }
+
+    setNeedsUpdate(true);
+
+    if (e.target.value === "accepted") {
+      setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("id", reqId);
+      formData.append("student", studentId);
+      formData.append("status", "accepted")
+
+      await fetch("http://localhost:8080/accept-final-application", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+        },
+        body: formData,
+      });
+    } else {
+      setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
+
+      await fetch("http://localhost:8080/reject-final-application", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({status: "rejected", id: reqId, student: studentId}),
+      });
+    }
+  }
+
   return (
     <div id="teacher-requests-main">
       <p>Check your new requests!</p>
@@ -187,7 +239,13 @@ function TeacherRequests() {
           <ul>
             {finalApplications.map((request, index) => (
               <li key={index}>{request.student.firstname} {request.student.lastname} - 
-                <button key={index} onClick={() => downloadApplication(index)}>View application</button>
+                <button onClick={() => downloadApplication(index)}>View application</button>
+                <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
+                <form>
+                  <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
+                  onChange={submitFile}></input>
+                </form>
+                <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id)} value="rejected">Reject</button>
               </li>
             ))}
           </ul>
