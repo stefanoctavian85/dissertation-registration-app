@@ -109,6 +109,33 @@ function TeacherRequests() {
     }
   }
 
+  async function downloadApplication(index) {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+    
+    if (!storedToken) {
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
+      return;
+    }
+
+    fetch(`http://localhost:8080/${finalApplications[index].fileUrl}`, {
+      method: "GET",
+      "Authorization": `Bearer ${storedToken}`
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = finalApplications[index].fileUrl.split("/").pop();
+        link.click();
+      })
+      .catch((err) => {
+        setError(err);
+      })
+  }
+
   return (
     <div id="teacher-requests-main">
       <p>Check your new requests!</p>
@@ -160,8 +187,7 @@ function TeacherRequests() {
           <ul>
             {finalApplications.map((request, index) => (
               <li key={index}>{request.student.firstname} {request.student.lastname} - 
-                <a href={`http://localhost:8080/${request.fileUrl}`} download={request.fileUrl.split("/").pop()} target="_blank" rel="noopener noreferrer"> View application</a>
-                <p>{`http://localhost:8080/${request.fileUrl}`}</p>
+                <button key={index} onClick={() => downloadApplication(index)}>View application</button>
               </li>
             ))}
           </ul>

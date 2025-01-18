@@ -11,6 +11,7 @@ import { User } from './db/Account.model.js';
 import { Request } from "./db/Request.model.js";
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
+import { fstat } from "fs";
 
 dotenv.config();
 const app = express();
@@ -71,7 +72,7 @@ app.use(expressjwt({
   secret: process.env.SECRET,
   algorithms: ['HS256'],
 }).unless({
-  path: ['/login', '/api-doc', '/api-doc.yml', '/register',  "^/uploads/.*"]
+  path: ['/login', '/api-doc', '/api-doc.yml', '/register']
 }));
 
 app.post("/register", async (req, res) => {
@@ -337,7 +338,6 @@ app.post("/send-final-application", upload.single("file"), async (req, res) => {
 
     let filePath = path.normalize(file.path);
     filePath = filePath.replace(/\\/g, "/");
-    // filePath += fileExtension;
 
     request.fileUrl = filePath;
     await request.save();
