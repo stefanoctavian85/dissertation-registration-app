@@ -7,6 +7,7 @@ function TeacherRequests() {
   const [requestApprovedNr, setRequestApprovedNr] = useState(0);
   const [needsUpdate, setNeedsUpdate] = useState(true);
   const [rejectionMessage, setRejectionMessage] = useState("");
+  const [finalApplications, setFinalApplications] = useState([]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -58,8 +59,27 @@ function TeacherRequests() {
         .then((data) => {
           setRequestApprovedNr(data.approvedRequests);
         })
+        .catch((err) => {
+          setError(err);
+        }) 
     }
-  });
+
+    fetch("http://localhost:8080/final-applications", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${storedToken}`,
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        setFinalApplications(data.filteredRequests);
+      })
+      .catch((err) => {
+        setError(err);
+      });
+  }, []);
 
   function submitRejectionMessage(e) {
     setRejectionMessage(e.target.value);
@@ -92,11 +112,11 @@ function TeacherRequests() {
   return (
     <div id="teacher-requests-main">
       <p>Check your new requests!</p>
+      <p>Number of approved requests: {requestApprovedNr}/5</p>
       {requests.length === 0 ? (
         <p>{error}</p>
       ) : (
         <div>
-          <p>Number of approved requests: {requestApprovedNr}/5</p>
           {requestApprovedNr < 5 ? (
             <div>
               <p>Preliminary requests:</p>
@@ -132,6 +152,22 @@ function TeacherRequests() {
           )}
         </div>
       )}
+      <p>Final applications:</p>
+      {finalApplications.length === 0 ? (
+        <p>You don't have any final application yet!</p>
+      ) : (
+        <div>
+          <ul>
+            {finalApplications.map((request, index) => (
+              <li key={index}>{request.student.firstname} {request.student.lastname} - 
+                <a href={`http://localhost:8080/${request.fileUrl}`} download={request.fileUrl.split("/").pop()} target="_blank" rel="noopener noreferrer"> View application</a>
+                <p>{`http://localhost:8080/${request.fileUrl}`}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p>{error}</p>
     </div>
   );
 }

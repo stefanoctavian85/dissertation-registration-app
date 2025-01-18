@@ -17,14 +17,27 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    const fileExtension = path.extname(file.originalname);
+    const filename = Date.now() + fileExtension;
+    cb(null, filename);
+  }
+});
+
 const upload = multer({
-  dest: "uploads/"
+  storage: storage,
 });
 
 const PORT = process.env.PORT;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 async function connectToDatabase() {
   try {
@@ -58,7 +71,7 @@ app.use(expressjwt({
   secret: process.env.SECRET,
   algorithms: ['HS256'],
 }).unless({
-  path: ['/login', '/api-doc', '/api-doc.yml', '/register']
+  path: ['/login', '/api-doc', '/api-doc.yml', '/register',  "^/uploads/.*"]
 }));
 
 app.post("/register", async (req, res) => {
@@ -311,6 +324,7 @@ app.get("/sent-requests", async (req, res) => {
 app.post("/send-final-application", upload.single("file"), async (req, res) => {
   const file = req.file;
   const {student, teacher} = req.body;
+  const fileExtension = path.extname(file.originalname);
 
   try {
     const request = await Request.findOne({student, teacher});
@@ -321,7 +335,11 @@ app.post("/send-final-application", upload.single("file"), async (req, res) => {
       });
     }
 
-    request.fileUrl = file.path;
+    let filePath = path.normalize(file.path);
+    filePath = filePath.replace(/\\/g, "/");
+    // filePath += fileExtension;
+
+    request.fileUrl = filePath;
     await request.save();
 
     return res.status(200).json({
@@ -330,9 +348,43 @@ app.post("/send-final-application", upload.single("file"), async (req, res) => {
   } catch(err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
-      error: err.message,
     });
   }
+});
+
+app.get("/final-applications", async (req, res) => {
+  const { id } = req.auth;
+
+  try {
+    const requests = await Request.find({teacher: id}).populate("student", "firstname lastname");
+
+    if (!requests) {
+      return res.status(404).json({
+        message: "Requests not found!",
+      })
+    }
+
+    const filteredRequests = requests.filter((request) => request.fileUrl && request.fileUrl.length > 0);
+
+    return res.status(200).json({
+      filteredRequests,
+    });
+  } catch(err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    });
+  }
+});
+
+app.get("/uploads/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, "uploads", filename);
+  console.log(filePath);
+
+  res.download(filePath, (error) => {
+    console.error(error);
+  });
 });
 
 app.listen(PORT, () => {
