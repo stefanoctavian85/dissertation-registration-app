@@ -9,13 +9,17 @@ import path from "path";
 import mongoose from 'mongoose';
 import { User } from './db/Account.model.js';
 import { Request } from "./db/Request.model.js";
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+const upload = multer({
+  dest: "uploads/"
+});
 
 const PORT = process.env.PORT;
 
@@ -300,6 +304,33 @@ app.get("/sent-requests", async (req, res) => {
   } catch(err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
+    });
+  }
+});
+
+app.post("/send-final-application", upload.single("file"), async (req, res) => {
+  const file = req.file;
+  const {student, teacher} = req.body;
+
+  try {
+    const request = await Request.findOne({student, teacher});
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found!"
+      });
+    }
+
+    request.fileUrl = file.path;
+    await request.save();
+
+    return res.status(200).json({
+      message: "Application sent successfully!",
+    });
+  } catch(err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+      error: err.message,
     });
   }
 });

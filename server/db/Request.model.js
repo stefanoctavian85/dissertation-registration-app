@@ -23,6 +23,9 @@ const requestSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    fileUrl: {
+        type: String,
+    }
 });
 
 export const Request = mongoose.model('Request', requestSchema);

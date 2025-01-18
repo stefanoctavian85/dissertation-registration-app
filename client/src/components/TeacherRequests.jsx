@@ -98,32 +98,35 @@ function TeacherRequests() {
         <div>
           <p>Number of approved requests: {requestApprovedNr}/5</p>
           {requestApprovedNr < 5 ? (
-            <ul>
-            {requests.filter(request => request.status === "pending").length > 0 ? (
-              requests.map(
-                (request, index) =>
-                  request.status === "pending" && (
-                    <li key={index}>
-                      {request.student.firstname} {request.student.lastname}
-                      <button
-                        onClick={() => handleRequest(request._id, "approved")}
-                      >
-                        Accept
-                      </button>
-                      <input
-                        type="text"
-                        placeholder="Reason for rejection"
-                        onChange={(e) => submitRejectionMessage(e)}
-                      />
-                      <button
-                        onClick={() => handleRequest(request._id, "rejected")}
-                      >
-                        Reject
-                      </button>
-                    </li>
-                  ))
-            ) : (<p>You don't have new requests!</p>)}
-          </ul>
+            <div>
+              <p>Preliminary requests:</p>
+              <ul>
+              {requests.filter(request => request.status === "pending").length > 0 ? (
+                requests.map(
+                  (request, index) =>
+                    request.status === "pending" && (
+                      <li key={index}>
+                        {request.student.firstname} {request.student.lastname}
+                        <button
+                          onClick={() => handleRequest(request._id, "approved")}
+                        >
+                          Accept
+                        </button>
+                        <input
+                          type="text"
+                          placeholder="Reason for rejection"
+                          onChange={(e) => submitRejectionMessage(e)}
+                        />
+                        <button
+                          onClick={() => handleRequest(request._id, "rejected")}
+                        >
+                          Reject
+                        </button>
+                      </li>
+                    ))
+              ) : (<p>You don't have new requests!</p>)}
+            </ul>
+          </div>
           ) : (
             <p>You have reached the maximum number of requests!</p>
           )}

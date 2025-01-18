@@ -7,6 +7,11 @@ function Request() {
   const [message, setMessage] = useState("");
   const [teachers, setTeachers] = useState([]);
   const [sentRequests, setSentRequest] = useState([]);
+  const [file, setFile] = useState(null);
+
+  const submitFile = (e) => {
+    setFile(e.target.files[0]);
+  }
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -73,8 +78,15 @@ function Request() {
 
   async function submitRequest(teacherId) {
     const storedToken = localStorage.getItem("token");
-    const studentId = jwtDecode(token).id;
 
+    if (!storedToken) {
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
+      return;
+    }
+
+    const studentId = jwtDecode(token).id;
 
     const res = await fetch(`http://localhost:8080/submit-request/`, {
       method: "POST",
@@ -93,9 +105,50 @@ function Request() {
     setMessage(data.message);
   }
 
+  const sendApplication = async (e, request) => {
+    e.preventDefault();
+
+    const storedToken = localStorage.getItem("token");
+
+    if (!storedToken) {
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
+      return;
+    }
+
+    if (!file) {
+      setMessage("Please upload a file!");
+      return;
+    } else {
+      setMessage("");
+    }
+
+    let studentId = jwtDecode(token).id;
+    let teacherId = request.teacher._id;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("student", studentId);
+    formData.append("teacher", teacherId);
+
+    const res = await fetch("http://localhost:8080/send-final-application", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${storedToken}`
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setMessage(data.error);
+    }
+  }
+
   return (
     <div id="request-main">
-      <p>Depune o cerere noua!</p>
+      <p>Submit a new application!</p>
       {teachers.length === 0 ? (
         <p>{message}</p>
       ) : (
@@ -109,7 +162,7 @@ function Request() {
                     id={`btn-${index}`}
                     onClick={() => submitRequest(teacher._id)}
                   >
-                    Trimite cerere
+                    Send application
                   </button>
                 </li>
               );
@@ -123,13 +176,26 @@ function Request() {
         {sentRequests.length !== 0 ? (
           <div>
             <ul>
-              {sentRequests.map((request, index) => {
-                return (
+              {sentRequests.map((request, index) => (
+                request.status === "approved" ? (
+                  <div key={index}>
+                    <li key={index}>
+                      {request.teacher.firstname} {request.teacher.lastname} - {request.status}
+                    </li>
+                    <p>Upload here your request!</p>
+                    <form onSubmit={(e) => sendApplication(e, request)}>
+                      <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
+                      onChange={submitFile}></input>
+                      <button type="submit">Send final application</button>
+                      <p>{message}</p>
+                    </form>
+                  </div>
+                ) : (
                   <li key={index}>
-                    {request.teacher.firstname} {request.teacher.lastname} - {request.status}
+                    {request.teacher.firstname} {request.teacher.lastname} - {request.status} - {request.message}
                   </li>
                 )
-              })}
+              ))}
             </ul>
           </div>
         ) : (<p>You didn't send any request yet!</p>)}
