@@ -200,6 +200,10 @@ function Request() {
           </div>
         ) : (<p>You didn't send any request yet!</p>)}
       </div>
+      <div>
+        <p>Download the application form</p>
+        <a href="http://localhost:8080/download">Download</a>
+      </div>
       <p>{error}</p>
     </div>
   );

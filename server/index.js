@@ -11,7 +11,6 @@ import { User } from './db/Account.model.js';
 import { Request } from "./db/Request.model.js";
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
-import { fstat } from "fs";
 
 dotenv.config();
 const app = express();
@@ -72,7 +71,7 @@ app.use(expressjwt({
   secret: process.env.SECRET,
   algorithms: ['HS256'],
 }).unless({
-  path: ['/login', '/api-doc', '/api-doc.yml', '/register']
+  path: ['/login', '/api-doc', '/api-doc.yml', '/register', '/download']
 }));
 
 app.post("/register", async (req, res) => {
@@ -383,8 +382,20 @@ app.get("/uploads/:filename", (req, res) => {
   console.log(filePath);
 
   res.download(filePath, (error) => {
-    console.error(error);
+    if (error) {
+      console.error(error);
+    }
   });
+});
+
+app.get("/download", (req, res) => {
+  const filePath = path.join(__dirname, "uploads", "Model_cerere.pdf");
+
+  res.download(filePath, (error) => {
+    if (error) {
+      console.error(error);
+    }
+  })
 });
 
 app.listen(PORT, () => {
