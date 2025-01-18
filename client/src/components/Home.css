@@ -1,16 +1,82 @@
 body {
-    box-sizing: border-box;
-    background-color: rgb(65, 64, 64);
-}
-
-h1 {
-    display: flex;
-    justify-content: center;
-    font-family: sans-serif;
-    font-size: 30px;
-    color: white;
+  box-sizing: border-box;
+  background-color: rgb(65, 64, 64);
 }
 
 p {
-    color: white;
+  color: white;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  color: hsl(216, 33%, 80%);
+  font-size: 1.5rem;
+  max-width: 50rem;
+  width: 90%;
+  margin: 5rem auto;
+  text-align: center;
+}
+
+.not-logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 600px;
+}
+
+.not-logged-in h1 {
+  font-size: 2.5rem;
+  color: hsl(193, 85%, 87%);
+  margin-bottom: 20px;
+}
+
+.not-logged-in p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.not-logged-in-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.home-button {
+  background-color: hsl(193, 99%, 63%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, hsl(209, 100%, 51%), hsl(193, 95%, 57%));
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.home-button:hover,
+.home-button:active {
+  background: linear-gradient(90deg, hsl(209, 100%, 45%), hsl(193, 95%, 64%));
+}
+
+.main-content {
+  display: flex;
+  width: 70%;
+  justify-content: center;
+  align-items: center;
+  margin: 5rem auto;
+  font-size: 1.5rem;
+}
+
+.home-image {
+  margin-top: 40px;
+}
+
+.home-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  margin: 2rem auto;
 }

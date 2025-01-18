@@ -1,0 +1,15 @@
+.link {
+  text-decoration: none;
+  color: hsl(193, 85%, 87%);
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.link:hover {
+  background: linear-gradient(90deg, #71bbe4, #128bba);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 18px rgba(30, 170, 246, 0.8);
+}

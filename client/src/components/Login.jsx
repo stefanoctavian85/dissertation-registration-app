@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-function Login() {
+function Login({ handleLoginStatus }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const navigate = useNavigate();
 
   function submitUsername(e) {
@@ -36,18 +36,16 @@ function Login() {
     setMessage(data.message);
 
     if (data.success) {
+      handleLoginStatus(true);
+      localStorage.setItem("username", username);
+      localStorage.setItem("token", data.token);
       setTimeout(() => {
-        localStorage.setItem("loginStatus", "true");
-        localStorage.setItem("username", username);
-        localStorage.setItem("token", data.token);
-        setIsLoggedIn(true);
         navigate("/");
       }, 1000);
     } else {
-      localStorage.setItem("loginStatus", "false");
+      handleLoginStatus(false);
       localStorage.setItem("username", "");
       localStorage.setItem("token", "");
-      setIsLoggedIn(false);
     }
 
     setUsername("");
@@ -59,40 +57,49 @@ function Login() {
   }
 
   return (
-    <div>
-      <h1>Login</h1>
-      <div id="login-container">
-        <div className="login-item">
-          <label>Username</label>
-          <input
-            type="text"
-            id="usernameInput"
-            placeholder="Enter username..."
-            value={username}
-            onChange={submitUsername}
-          />
-          <br />
-        </div>
-        <div className="login-item">
-          <label>Password</label>
-          <input
-            type="password"
-            id="passwordInput"
-            placeholder="Enter password..."
-            value={password}
-            onChange={submitPassword}
-          />
-          <br />
-        </div>
-        <button id="login-button" onClick={submitButton}>
-          Login
-        </button>
-        <p>You don't have an account?</p>
-        <button id="register-button" onClick={registerButton}>
-          Sign in
-        </button>
+    <div className="login-page">
+      <div className="login-container">
+        <h1 className="login-header">Welcome Back</h1>
+        <p className="login-subtitle">Login to access your account</p>
+        <form className="login-form">
+          <div className="login-input">
+            <label htmlFor="username-input">Username</label>
+            <input
+              id="username-input"
+              type="text"
+              placeholder="Enter username..."
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className="login-input">
+            <label htmlFor="password-input">Password</label>
+            <input
+              id="password-input"
+              type="password"
+              placeholder="Enter password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="login-button" type="button" onClick={submitButton}>
+            Login
+          </button>
+        </form>
+        <p className="login-register">
+          Don&apos;t have an account?{" "}
+          <span
+            onClick={registerButton}
+            type="button"
+            className="register-link"
+          >
+            Register
+          </span>
+        </p>
+        {message && <p className="login-message">{message}</p>}
       </div>
-      <p id="message">{message}</p>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import "./Register.css";
+import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
@@ -61,6 +63,9 @@ function Register() {
 
       if (res.ok) {
         setMessage(data.message);
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       } else {
         setError(data.message);
       }
@@ -70,67 +75,85 @@ function Register() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <div className="register-container">
-        <form id="form-register" onSubmit={handleSubmit}>
-          <div className="register-item">
-            <label>Username</label>
+    <div className="login-page">
+      <div className="login-container">
+        <h1 className="login-header">Create an Account</h1>
+        <p className="login-subtitle">Register to access the platform</p>
+        <form className="login-form">
+          <div className="login-input">
+            <label htmlFor="username-input">Username</label>
             <input
+              id="username-input"
               type="text"
-              id="usernameInput"
               placeholder="Enter username..."
               value={username}
               onChange={submitUsername}
-            ></input>
+              required
+            />
           </div>
-          <div className="register-item">
-            <label>First name</label>
+          <div className="login-input">
+            <label htmlFor="email-input">Email</label>
             <input
-              type="text"
-              id="firstnameInput"
-              placeholder="Enter first name..."
-              value={firstname}
-              onChange={submitFirstname}
-            ></input>
-          </div>
-          <div className="register-item">
-            <label>Last name</label>
-            <input
-              type="text"
-              id="lastnameInput"
-              placeholder="Enter last name..."
-              value={lastname}
-              onChange={submitLastname}
-            ></input>
-          </div>
-          <div className="register-item">
-            <label>Email</label>
-            <input
+              id="email-input"
               type="email"
-              id="emailInput"
               placeholder="Enter email..."
               value={email}
               onChange={submitEmail}
-            ></input>
+              required
+            />
           </div>
-          <div className="register-item">
-            <label>Password</label>
+          <div className="login-input">
+            <label htmlFor="firstname-input">First Name</label>
             <input
+              id="firstname-input"
+              type="text"
+              placeholder="Enter first name..."
+              value={firstname}
+              onChange={submitFirstname}
+              required
+            />
+          </div>
+          <div className="login-input">
+            <label htmlFor="lastname-input">Last Name</label>
+            <input
+              id="lastname-input"
+              type="text"
+              placeholder="Enter last name..."
+              value={lastname}
+              onChange={submitLastname}
+              required
+            />
+          </div>
+          <div className="login-input">
+            <label htmlFor="password-input">Password</label>
+            <input
+              id="password-input"
               type="password"
-              id="passwordInput"
               placeholder="Enter password..."
               value={password}
               onChange={submitPassword}
-            ></input>
+              required
+            />
           </div>
-          <button id="signin-button" type="submit">
-            Sign in
+          <p className="login-register">
+            Already have an account?{" "}
+            <span
+              onClick={() => {
+                navigate("/login");
+              }}
+              type="button"
+              className="register-link"
+            >
+              Sign in
+            </span>
+          </p>
+          <button className="login-button" onClick={handleSubmit}>
+            Register
           </button>
         </form>
+        {error && <p className="error-message">{error}</p>}
+        {message && <p className="login-message">{message}</p>}
       </div>
-      {error && <p id="error-message">{error}</p>}
-      {message && <p id="message">{message}</p>}
     </div>
   );
 }

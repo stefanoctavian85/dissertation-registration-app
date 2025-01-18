@@ -1,59 +1,63 @@
 body {
-    margin: 0;
-    font-family: sans-serif;
+  margin: 0;
+  font-family: sans-serif;
 }
 
-#nav-bar {
-    border: 1px solid hsla(0, 17%, 25%, 0.467);
-    border-radius: 5px;
-    position: relative;
-    height: 60px;
+@media (min-width: 760px) {
+  .main-header {
+    padding: 2rem 8%;
+  }
+}
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  padding: 10px 20px;
 }
 
-#nav-bar ul {
-    list-style-type: none;
-    position: relative;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background-color: hsl(210, 8%, 10%);
+.navbar-logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: hsl(193, 85%, 87%);
+  font-weight: 700;
+  font-family: Montserrat, sans-serif;
+  letter-spacing: 0.15rem;
+  text-transform: uppercase;
 }
 
-a { 
-    text-decoration: none;
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 20px;
 }
 
-#home-button {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: white;
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: color 0.3s ease-in;
 }
 
-#account-button {
-    position: absolute;
-    right: 150px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    border-radius: 5px;
-    background-color: hsla(185, 100%, 50%, 0.938);
-    padding: 5px;
+.navbar-links a:hover {
+  color: #61dafb;
 }
 
-#logout-button {
-    position: absolute;
-    right: 50px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    border-radius: 5px;
-    background-color: hsla(185, 100%, 50%, 0.938);
-    padding: 5px 10px;
+.navbar-button {
+  background-color: hsl(193, 99%, 63%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, hsl(209, 100%, 51%), hsl(193, 95%, 57%));
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
 }
 
-#nav-bar button:hover {
-    background-color: hsla(185, 100%, 40%, 0.938);
-    transition: 0.5s ease;
+.navbar-button:hover,
+.navbar-button:active {
+  background: linear-gradient(90deg, hsl(209, 100%, 45%), hsl(193, 95%, 64%));
 }
