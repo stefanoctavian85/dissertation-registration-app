@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode';
 
 function Profile() {
-  const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [isStudent, setIsStudent] = useState(0);
-  const [phoneNumber, setPhoneNumber] = useState();
   const [btnRequestsText, setBtnRequestsText] = useState("");
   const [error, setError] = useState(null);
   const [token, setToken] = useState("");
   const [acceptedApplication, setAcceptedApplication] = useState("");
+  const [message, setMessage] = useState("");
+  const [file, setFile] = useState(null);
 
   let navigate = useNavigate();
+
+  const submitFile = (e) => {
+    setFile(e.target.files[0]);
+  } 
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -39,13 +44,11 @@ function Profile() {
         return res.json();
       })
       .then((data) => {
-        setUsername(data.username);
-        setPhoneNumber(data.phoneNumber);
         setFirstname(data.firstname);
         setLastname(data.lastname);
         setIsStudent(data.isStudent);
         setBtnRequestsText(
-          data.isStudent ? "Depune o cerere noua" : "Verifica cererile primite"
+          data.isStudent ? "Send a new application" : "View received applications"
         );
       })
       .catch((err) =>
@@ -119,14 +122,70 @@ function Profile() {
       })
   }
 
+  const sendApplication = async (e, request) => {
+      e.preventDefault();
+  
+      const storedToken = localStorage.getItem("token");
+  
+      if (!storedToken) {
+        setError(
+          "You don't have the authorization to be here! Please log in first!"
+        );
+        return;
+      }
+  
+      if (!file) {
+        setMessage("Please upload a file!");
+        return;
+      } else {
+        setMessage("");
+      }
+  
+      let studentId = jwtDecode(token).id;
+      let teacherId = request.teacher._id;
+  
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("student", studentId);
+      formData.append("teacher", teacherId);
+  
+      const res = await fetch("http://localhost:8080/send-final-application", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`
+        },
+        body: formData,
+      });
+  
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(data.error);
+      }
+    }
+
   return (
     <div id="profile-main">
       <p>Bun venit, {firstname + " " + lastname}!</p>
       <div id="requests">
         {acceptedApplication ? (
           <div>
-            <p>Your application was accepted by {acceptedApplication.teacher.firstname} {acceptedApplication.teacher.lastname}</p>
-            <button onClick={() => downloadApplication(acceptedApplication._id)}>View application</button>
+            {(acceptedApplication.status === "rejected" && acceptedApplication.fileUrl !== "") ? (
+              <div>
+                <p>Your application was rejected by {acceptedApplication.teacher.firstname} {acceptedApplication.teacher.lastname}</p>
+                <p>Upload a new file!</p>
+                <form onSubmit={(e) => sendApplication(e, acceptedApplication)}>
+                      <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
+                      onChange={submitFile}></input>
+                      <button type="submit">Send final application</button>
+                      <p>{message}</p>
+                </form>
+              </div>
+            ) : (
+              <div>
+                <p>Your application was accepted by {acceptedApplication.teacher.firstname} {acceptedApplication.teacher.lastname}</p>
+                <button onClick={() => downloadApplication(acceptedApplication._id)}>View application</button>
+              </div>
+            )}
           </div>
         ) : (
           <button onClick={requestsHandler}>{btnRequestsText}</button>

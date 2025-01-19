@@ -9,7 +9,8 @@ function TeacherRequests() {
   const [rejectionMessage, setRejectionMessage] = useState("");
   const [finalApplications, setFinalApplications] = useState([]);
   const [file, setFile] = useState("");
-
+  const [message, setMessage] = useState("");
+ 
   const submitFile = (e) => {
     setFile(e.target.files[0]);
   }
@@ -158,6 +159,13 @@ function TeacherRequests() {
       return;
     }
 
+    if (!file && e.target.value === "accepted") {
+      setMessage("Please upload a file!");
+      return;
+    } else {
+      setMessage("");
+    }
+
     setNeedsUpdate(true);
 
     if (e.target.value === "accepted") {
@@ -240,15 +248,18 @@ function TeacherRequests() {
         <div>
           <ul>
             {finalApplications.map((request, index) => (
-              <li key={index}>{request.student.firstname} {request.student.lastname} - 
-                <button onClick={() => downloadApplication(index)}>View application</button>
-                <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
-                <form>
-                  <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
-                  onChange={submitFile}></input>
-                </form>
-                <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id)} value="rejected">Reject</button>
-              </li>
+              <div>
+                <li key={index}>{request.student.firstname} {request.student.lastname} - 
+                  <button onClick={() => downloadApplication(index)}>View application</button>
+                  <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
+                  <form>
+                    <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
+                    onChange={submitFile}></input>
+                  </form>
+                  <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id)} value="rejected">Reject</button>
+                </li>
+                <p>{message}</p>
+              </div>
             ))}
           </ul>
         </div>

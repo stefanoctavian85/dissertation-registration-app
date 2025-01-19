@@ -37,14 +37,12 @@ function Login({ handleLoginStatus }) {
 
     if (data.success) {
       handleLoginStatus(true);
-      localStorage.setItem("username", username);
       localStorage.setItem("token", data.token);
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } else {
       handleLoginStatus(false);
-      localStorage.setItem("username", "");
       localStorage.setItem("token", "");
     }
 
