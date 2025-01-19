@@ -245,6 +245,7 @@ app.get("/requests", async (req, res) => {
     const requests = await Request.find({
       teacher: id,
     }).populate("student", "firstname lastname");
+    console.log(requests);
 
     if (requests.length === 0) {
       return res.status(404).json({
@@ -378,7 +379,6 @@ app.get("/final-applications", async (req, res) => {
     }
 
     const filteredRequests = requests.filter((request) => request.fileUrl !== "" && request.status === "approved");
-
 
     return res.status(200).json({
       filteredRequests,

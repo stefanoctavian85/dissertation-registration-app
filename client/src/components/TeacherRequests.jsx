@@ -35,10 +35,8 @@ function TeacherRequests() {
       })
         .then((res) => {
           if (!res.ok) {
-            return res.json().then((error) => {
-              setError(error.message);
-              return res.json();
-            });
+            setError(res.message);
+            return;
           }
           return res.json();
         })
@@ -46,7 +44,7 @@ function TeacherRequests() {
           setRequests(data.requests);
           setNeedsUpdate(false);
         })
-        .catch((err) => setError(err.message));
+        .catch((err) => setError("You don't have new requests!"));
 
       fetch("http://localhost:8080/accepted-requests-count", {
         method: "GET",
@@ -56,15 +54,15 @@ function TeacherRequests() {
       })
         .then((res) => {
           if (!res.ok) {
-            setError(error.message);
-            return res.json();
+            setError(res.message);
+            return;
           } else {
             return res.json();
           }
         })
         .then((data) => {
           setAcceptedRequestsNumber(data.acceptedRequests);
-          setNeedsUpdate(true);
+          setNeedsUpdate(false);
         })
         .catch((err) => {
           setError(err);
@@ -78,6 +76,7 @@ function TeacherRequests() {
       })
         .then((res) => {
           if (!res.ok) {
+            setError(res.message);
             return;
           }
           return res.json();
@@ -90,7 +89,7 @@ function TeacherRequests() {
           setError(err);
         });
     }
-  }, []);
+  }, [needsUpdate]);
 
   function submitRejectionMessage(e) {
     setRejectionMessage(e.target.value);
@@ -208,8 +207,10 @@ function TeacherRequests() {
 
   return (
     <div id="teacher-requests-main">
-      <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
-      {requests.length === 0 ? (
+      {token ? (
+        <div>
+          <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
+      {!requests ? (
         <p>{error}</p>
       ) : (
         <div>
@@ -249,7 +250,7 @@ function TeacherRequests() {
         </div>
       )}
       <p>Final applications:</p>
-      {!finalApplications ? (
+      {Array.isArray(finalApplications) && finalApplications.length === 0 ? (
         <p>You don't have any final application yet!</p>
       ) : (
         <div>
@@ -272,7 +273,10 @@ function TeacherRequests() {
           </ul>
         </div>
       )}
-      <p>{error}</p>
+        </div>
+      ) : (
+        <p>{error}</p>
+      )}
     </div>
   );
 }
