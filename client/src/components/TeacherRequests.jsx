@@ -129,7 +129,9 @@ function TeacherRequests() {
 
     fetch(`http://localhost:8080/${finalApplications[index].fileUrl}`, {
       method: "GET",
-      "Authorization": `Bearer ${storedToken}`
+      headers: {
+        "Authorization": `Bearer ${storedToken}`,
+      }
     })
       .then((res) => res.blob())
       .then((blob) => {

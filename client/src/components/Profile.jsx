@@ -10,6 +10,7 @@ function Profile() {
   const [btnRequestsText, setBtnRequestsText] = useState("");
   const [error, setError] = useState(null);
   const [token, setToken] = useState("");
+  const [acceptedApplication, setAcceptedApplication] = useState("");
 
   let navigate = useNavigate();
 
@@ -30,7 +31,13 @@ function Profile() {
         Authorization: `Bearer ${storedToken}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          setError(res.error);
+          return;
+        }
+        return res.json();
+      })
       .then((data) => {
         setUsername(data.username);
         setPhoneNumber(data.phoneNumber);
@@ -46,7 +53,26 @@ function Profile() {
           "You don't have the authorization to be here! Please log in first!"
         )
       );
-  }, [username]);
+
+      fetch("http://localhost:8080/accepted-application", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${storedToken}`,
+        }
+      })
+        .then(res => {
+          if (!res.ok) {
+            setError(res.error);
+            return;
+          }
+          return res.json();
+        })
+        .then(data => {setAcceptedApplication(data.request);
+        })
+        .catch(err =>
+          setError(err)
+        );
+  }, []);
 
   if (error) {
     return (
@@ -64,11 +90,47 @@ function Profile() {
     }
   }
 
+  async function downloadApplication(index) {
+    const storedToken = localStorage.getItem("token");
+    setToken(token);
+
+    if (!storedToken) {
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
+      return;
+    }
+
+    fetch(`http://localhost:8080/${acceptedApplication.fileUrl}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${storedToken}`,
+      }
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = acceptedApplication.fileUrl.split("/").pop();
+        link.click();
+      })
+      .catch((err) => {
+        setError(err);
+      })
+  }
+
   return (
     <div id="profile-main">
       <p>Bun venit, {firstname + " " + lastname}!</p>
       <div id="requests">
-        <button onClick={requestsHandler}>{btnRequestsText}</button>
+        {acceptedApplication ? (
+          <div>
+            <p>Your application was accepted by {acceptedApplication.teacher.firstname} {acceptedApplication.teacher.lastname}</p>
+            <button onClick={() => downloadApplication(acceptedApplication._id)}>View application</button>
+          </div>
+        ) : (
+          <button onClick={requestsHandler}>{btnRequestsText}</button>
+        )}
       </div>
     </div>
   );

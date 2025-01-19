@@ -440,6 +440,29 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
   }
 });
 
+app.get("/accepted-application", async (req, res) => {
+  const { id } = req.auth;
+
+  try {
+    const request = await Request.findOne({student: id, status: "accepted"}).populate("teacher", "firstname lastname");
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found!",
+      })
+    }
+
+    return res.status(200).json({
+      request,
+    });
+
+  } catch(err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);
 });
