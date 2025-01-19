@@ -135,7 +135,7 @@ app.get('/profile', async (req, res) => {
     const account = await User.findOne({ username });
 
     if (!account) {
-      return res.status(400).json({
+      return res.status(404).json({
         message: "The user does not exist!",
       });
     }

@@ -24,57 +24,58 @@ function Profile() {
     setToken(storedToken);
 
     if (!storedToken) {
-      setError(
-        "You don't have the authorization to be here! Please log in first!"
-      );
+      navigate("/login");
       return;
     }
 
-    fetch(`http://localhost:8080/profile`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${storedToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          setError(res.error);
-          return;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setFirstname(data.firstname);
-        setLastname(data.lastname);
-        setIsStudent(data.isStudent);
-        setBtnRequestsText(
-          data.isStudent ? "Send a new application" : "View received applications"
-        );
-      })
-      .catch((err) =>
-        setError(
-          "You don't have the authorization to be here! Please log in first!"
-        )
-      );
-
-      fetch("http://localhost:8080/accepted-application", {
+    const decodedToken = jwtDecode(storedToken);
+    if (decodedToken.exp < Date.now() / 1000) {
+      navigate("/login");
+    } else {
+      fetch(`http://localhost:8080/profile`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${storedToken}`,
-        }
+          Authorization: `Bearer ${storedToken}`,
+        },
       })
-        .then(res => {
+        .then((res) => {
           if (!res.ok) {
-            setError(res.error);
             return;
           }
           return res.json();
         })
-        .then(data => {setAcceptedApplication(data.request);
+        .then((data) => {
+          setFirstname(data.firstname);
+          setLastname(data.lastname);
+          setIsStudent(data.isStudent);
+          setBtnRequestsText(
+            data.isStudent ? "Send a new application" : "View received applications"
+          );
         })
-        .catch(err =>
+        .catch((err) =>
           setError(err)
         );
+  
+        fetch("http://localhost:8080/accepted-application", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${storedToken}`,
+          }
+        })
+          .then(res => {
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            return res.json();
+          })
+          .then(data => {setAcceptedApplication(data.request);
+          })
+          .catch(err =>
+            setError(err)
+          );
+    }
+
   }, []);
 
   if (error) {
@@ -93,14 +94,12 @@ function Profile() {
     }
   }
 
-  async function downloadApplication(index) {
+  async function downloadApplication() {
     const storedToken = localStorage.getItem("token");
     setToken(token);
 
     if (!storedToken) {
-      setError(
-        "You don't have the authorization to be here! Please log in first!"
-      );
+      navigate("/login");
       return;
     }
 
@@ -128,9 +127,7 @@ function Profile() {
       const storedToken = localStorage.getItem("token");
   
       if (!storedToken) {
-        setError(
-          "You don't have the authorization to be here! Please log in first!"
-        );
+        navigate("/login");
         return;
       }
   
@@ -165,6 +162,7 @@ function Profile() {
 
   return (
     <div id="profile-main">
+    <p>{error}</p>
       <p>Bun venit, {firstname + " " + lastname}!</p>
       <div id="requests">
         {acceptedApplication ? (
@@ -183,7 +181,7 @@ function Profile() {
             ) : (
               <div>
                 <p>Your application was accepted by {acceptedApplication.teacher.firstname} {acceptedApplication.teacher.lastname}</p>
-                <button onClick={() => downloadApplication(acceptedApplication._id)}>View application</button>
+                <button onClick={downloadApplication}>View application</button>
               </div>
             )}
           </div>
