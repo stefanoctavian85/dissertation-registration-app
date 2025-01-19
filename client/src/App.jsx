@@ -1,12 +1,12 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
-import Login from "./components/Login.jsx";
-import Home from "./components/Home.jsx";
-import Profile from "./components/Profile.jsx";
-import Register from "./components/Register.jsx";
-import Request from "./components/Request.jsx";
-import TeacherRequests from "./components/TeacherRequests.jsx";
+import Login from "./routes/Login.jsx";
+import Home from "./routes/Home.jsx";
+import Profile from "./routes/Profile.jsx";
+import Register from "./routes/Register.jsx";
+import Request from "./routes/Request.jsx";
+import TeacherRequests from "./routes/TeacherRequests.jsx";
 import { useEffect, useState } from "react";
 
 function App() {

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import NavLink from "./NavLink";
+import NavLink from "../components/NavLink";
 import homeImage from "../assets/home.png";
 function Home({ isLoggedIn }) {
   return (
