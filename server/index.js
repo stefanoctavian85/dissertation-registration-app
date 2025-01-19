@@ -11,6 +11,7 @@ import { User } from './db/Account.model.js';
 import { Request } from "./db/Request.model.js";
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 const app = express();
@@ -84,7 +85,9 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: 'User already exists!' });
     }
 
-    const newUser = new User({ username, firstname, lastname, password, isStudent, email, phoneNumber: 0, class: "" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({ username, firstname, lastname, password: hashedPassword, isStudent, email, phoneNumber: 0, class: "" });
     await newUser.save();
     return res.status(201).json({ message: "Register was successful!" });
   } catch (error) {
@@ -100,26 +103,26 @@ app.post("/login", async (req, res) => {
   try {
     const account = await User.findOne({ username });
 
-    if (!account) {
-      return res.status(400).json({
+    const isMatch = await bcrypt.compare(password, account.password);
+
+    if (!account || !isMatch) {
+      return res.status(401).json({
         message: "Invalid username or password!",
         success: false,
       });
     }
 
-    if (username === account.username && password === account.password) {
-      const token = jwt.sign(
-        { username: account.username, id: account._id.toString() },
-        process.env.SECRET,
-        { expiresIn: "1h" }
-      );
+    const token = jwt.sign(
+      { username: account.username, id: account._id.toString() },
+      process.env.SECRET,
+      { expiresIn: "1h" }
+    );
 
-      return res.status(200).json({
-        message: "Login successful!",
-        success: true,
-        token,
-      });
-    }
+    return res.status(200).json({
+      message: "Login successful!",
+      success: true,
+      token,
+    });
   } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
@@ -187,7 +190,7 @@ app.post("/submit-request", async (req, res) => {
       });
     }
 
-    const ifRequestExists = await Request.countDocuments({student, teacher});
+    const ifRequestExists = await Request.countDocuments({ student, teacher });
     if (ifRequestExists > 0) {
       return res.status(400).json({
         message: "Request already exists!",
@@ -262,7 +265,7 @@ app.post("/change-request-status", async (req, res) => {
         message: "Student has already an accepted application!",
       })
     }
-    
+
     request.status = status;
 
     if (status === "rejected") {
@@ -274,7 +277,7 @@ app.post("/change-request-status", async (req, res) => {
     return res.status(200).json({
       message: "Request update successfully!",
     })
-  } catch(error) {
+  } catch (error) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -285,13 +288,13 @@ app.get("/accepted-requests-count", async (req, res) => {
   const { id } = req.auth;
 
   try {
-    const teacherRequests = await Request.countDocuments({teacher: id, status: "accepted"});
+    const teacherRequests = await Request.countDocuments({ teacher: id, status: "accepted" });
 
     return res.status(200).json({
       acceptedRequests: teacherRequests,
     });
 
-  } catch(error) {
+  } catch (error) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -302,13 +305,13 @@ app.get("/sent-requests", async (req, res) => {
   const { id } = req.auth;
 
   try {
-    const sentRequests = await Request.find({student: id})
-    .populate("teacher", "firstname lastname");
+    const sentRequests = await Request.find({ student: id })
+      .populate("teacher", "firstname lastname");
 
     return res.status(200).json({
       sentRequests: sentRequests.length > 0 ? sentRequests : [],
     });
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -317,10 +320,10 @@ app.get("/sent-requests", async (req, res) => {
 
 app.post("/send-final-application", upload.single("file"), async (req, res) => {
   const file = req.file;
-  const {student, teacher} = req.body;
+  const { student, teacher } = req.body;
 
   try {
-    const request = await Request.findOne({student, teacher});
+    const request = await Request.findOne({ student, teacher });
 
     if (!request) {
       return res.status(404).json({
@@ -340,7 +343,7 @@ app.post("/send-final-application", upload.single("file"), async (req, res) => {
     return res.status(200).json({
       message: "Application sent successfully!",
     });
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -351,7 +354,7 @@ app.get("/final-applications", async (req, res) => {
   const { id } = req.auth;
 
   try {
-    const requests = await Request.find({teacher: id}).populate("student", "firstname lastname");
+    const requests = await Request.find({ teacher: id }).populate("student", "firstname lastname");
 
     if (!requests) {
       return res.status(404).json({
@@ -360,12 +363,12 @@ app.get("/final-applications", async (req, res) => {
     }
 
     const filteredRequests = requests.filter((request) => request.fileUrl !== "" && request.status === "approved");
-    
+
 
     return res.status(200).json({
       filteredRequests,
     });
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -397,7 +400,7 @@ app.post("/reject-final-application", async (req, res) => {
   const { status, id, student } = req.body;
 
   try {
-    const request = await Request.findOne({_id: id, student, status: "approved"});
+    const request = await Request.findOne({ _id: id, student, status: "approved" });
 
     // if (!request) {
     //   return res.status(404).json({
@@ -408,7 +411,7 @@ app.post("/reject-final-application", async (req, res) => {
 
     request.status = status;
     await request.save();
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     });
@@ -418,9 +421,9 @@ app.post("/reject-final-application", async (req, res) => {
 app.post("/accept-final-application", upload.single("file"), async (req, res) => {
   const file = req.file;
   const { id, student, status } = req.body;
-  
+
   try {
-    const checkAcceptedRequest = await Request.findOne({student, status: "accepted"});
+    const checkAcceptedRequest = await Request.findOne({ student, status: "accepted" });
 
     if (checkAcceptedRequest) {
       return res.status(409).json({
@@ -428,7 +431,7 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
       });
     }
 
-    const request = await Request.findOne({_id: id, student});
+    const request = await Request.findOne({ _id: id, student });
 
     if (!request) {
       return res.status(404).json({
@@ -446,7 +449,7 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
     return res.status(200).json({
       message: "Application accepted!",
     });
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     })
@@ -457,17 +460,17 @@ app.get("/accepted-application", async (req, res) => {
   const { id } = req.auth;
 
   try {
-    let request = await Request.findOne({student: id, status: "accepted"}).populate("teacher", "firstname lastname");
+    let request = await Request.findOne({ student: id, status: "accepted" }).populate("teacher", "firstname lastname");
 
     if (!request) {
-      request = await Request.findOne({student: id, status: "rejected", fileUrl: { $ne: "" }}).populate("teacher", "firstname lastname");
+      request = await Request.findOne({ student: id, status: "rejected", fileUrl: { $ne: "" } }).populate("teacher", "firstname lastname");
     }
 
     return res.status(200).json({
       request,
     });
 
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",
     })

@@ -201,7 +201,8 @@ function Request() {
                   </div>
                 ) : (
                   <li key={index}>
-                    {request.teacher.firstname} {request.teacher.lastname} - {request.status} - {request.message}
+                    {request.teacher.firstname} {request.teacher.lastname} - {request.status}
+                    <p>{request.message}</p>
                   </li>
                 )
               ))}
