@@ -332,6 +332,9 @@ app.post("/send-final-application", upload.single("file"), async (req, res) => {
     filePath = filePath.replace(/\\/g, "/");
 
     request.fileUrl = filePath;
+    if (request.status === "rejected") {
+      request.status = "approved";
+    }
     await request.save();
 
     return res.status(200).json({
@@ -358,7 +361,6 @@ app.get("/final-applications", async (req, res) => {
 
     const filteredRequests = requests.filter((request) => request.fileUrl !== "" && request.status === "approved");
     
-    console.log(filteredRequests);
 
     return res.status(200).json({
       filteredRequests,
@@ -373,7 +375,6 @@ app.get("/final-applications", async (req, res) => {
 app.get("/uploads/:filename", (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, "uploads", filename);
-  console.log(filePath);
 
   res.download(filePath, (error) => {
     if (error) {
@@ -394,7 +395,6 @@ app.get("/download", (req, res) => {
 
 app.post("/reject-final-application", async (req, res) => {
   const { status, id, student } = req.body;
-  console.log(student);
 
   try {
     const request = await Request.findOne({_id: id, student, status: "approved"});
@@ -422,7 +422,7 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
   try {
     const checkAcceptedRequest = await Request.findOne({student, status: "accepted"});
 
-    if (!checkAcceptedRequest) {
+    if (checkAcceptedRequest) {
       return res.status(409).json({
         message: "Someone has already accepted this application!",
       });

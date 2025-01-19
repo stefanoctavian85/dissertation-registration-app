@@ -183,7 +183,7 @@ function TeacherRequests() {
       formData.append("file", file);
       formData.append("id", reqId);
       formData.append("student", studentId);
-      formData.append("status", "accepted")
+      formData.append("status", "accepted");
 
       const res = await fetch("http://localhost:8080/accept-final-application", {
         method: "POST",
@@ -192,9 +192,6 @@ function TeacherRequests() {
         },
         body: formData,
       });
-
-      console.log(res);
-
     } else if (e.target.value === "rejected") {
       setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
 
@@ -262,6 +259,7 @@ function TeacherRequests() {
                 <li>{request.student.firstname} {request.student.lastname} -
                   <button onClick={() => downloadApplication(index)}>View application</button>
                   <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
+                  <p>{request.status}</p>
                   <form>
                     <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
                       onChange={submitFile}></input>
