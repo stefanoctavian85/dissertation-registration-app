@@ -275,14 +275,14 @@ app.post("/change-request-status", async (req, res) => {
   }
 });
 
-app.get("/approved-requests-count", async (req, res) => {
+app.get("/accepted-requests-count", async (req, res) => {
   const { id } = req.auth;
 
   try {
-    const teacherRequests = await Request.countDocuments({teacher: id, status: "approved"});
+    const teacherRequests = await Request.countDocuments({teacher: id, status: "accepted"});
 
     return res.status(200).json({
-      approvedRequests: teacherRequests,
+      acceptedRequests: teacherRequests,
     });
 
   } catch(error) {
@@ -356,7 +356,7 @@ app.get("/final-applications", async (req, res) => {
       })
     }
 
-    const filteredRequests = requests.filter((request) => request.fileUrl && request.fileUrl.length > 0 && request.status === "approved");
+    const filteredRequests = requests.filter((request) => request.fileUrl.length > 0 && request.fileUrl !== "" && request.status === "approved");
 
     return res.status(200).json({
       filteredRequests,
@@ -392,14 +392,17 @@ app.get("/download", (req, res) => {
 
 app.post("/reject-final-application", async (req, res) => {
   const { status, id, student } = req.body;
-  try {
-    const request = await Request.findOne({_id: id, student});
+  console.log(student);
 
-    if (!request) {
-      return res.status(404).json({
-        message: "Request not found!",
-      });
-    }
+  try {
+    const request = await Request.findOne({_id: id, student, status: "approved"});
+
+    // if (!request) {
+    //   return res.status(404).json({
+    //     message: "Request not found!",
+    //   });
+    // }
+
 
     request.status = status;
     await request.save();
@@ -449,12 +452,6 @@ app.get("/accepted-application", async (req, res) => {
     if (!request) {
       request = await Request.findOne({student: id, status: "rejected", fileUrl: { $ne: "" }}).populate("teacher", "firstname lastname");
     }
-
-    // if (!request) {
-    //   return res.status(404).json({
-    //     message: "Request not found!",
-    //   })
-    // }
 
     return res.status(200).json({
       request,

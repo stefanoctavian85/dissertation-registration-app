@@ -4,7 +4,7 @@ function TeacherRequests() {
   const [token, setToken] = useState("");
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
-  const [requestApprovedNr, setRequestApprovedNr] = useState(0);
+  const [acceptedRequestsNumber, setAcceptedRequestsNumber] = useState(0);
   const [needsUpdate, setNeedsUpdate] = useState(true);
   const [rejectionMessage, setRejectionMessage] = useState("");
   const [finalApplications, setFinalApplications] = useState([]);
@@ -48,7 +48,7 @@ function TeacherRequests() {
         })
         .catch((err) => setError(err.message));
   
-      fetch("http://localhost:8080/approved-requests-count", {
+      fetch("http://localhost:8080/accepted-requests-count", {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${storedToken}`,
@@ -63,7 +63,7 @@ function TeacherRequests() {
           }
         })
         .then((data) => {
-          setRequestApprovedNr(data.approvedRequests);
+          setAcceptedRequestsNumber(data.acceptedRequests);
           setNeedsUpdate(true);
         })
         .catch((err) => {
@@ -149,8 +149,6 @@ function TeacherRequests() {
   const handleFinalApplication = async (e, reqId, studentId, file) => {
     const storedToken = localStorage.getItem("token");
     setToken(storedToken);
-
-    console.log(file);
     
     if (!storedToken) {
       setError(
@@ -177,7 +175,7 @@ function TeacherRequests() {
       formData.append("student", studentId);
       formData.append("status", "accepted")
 
-      await fetch("http://localhost:8080/accept-final-application", {
+      fetch("http://localhost:8080/accept-final-application", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${storedToken}`,
@@ -187,7 +185,7 @@ function TeacherRequests() {
     } else {
       setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
 
-      await fetch("http://localhost:8080/reject-final-application", {
+      fetch("http://localhost:8080/reject-final-application", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${storedToken}`,
@@ -200,13 +198,12 @@ function TeacherRequests() {
 
   return (
     <div id="teacher-requests-main">
-      <p>Check your new requests!</p>
-      <p>Number of approved requests: {requestApprovedNr}/5</p>
+      <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
       {requests.length === 0 ? (
         <p>{error}</p>
       ) : (
         <div>
-          {requestApprovedNr < 5 ? (
+          {acceptedRequestsNumber < 5 ? (
             <div>
               <p>Preliminary requests:</p>
               <ul>
@@ -248,8 +245,8 @@ function TeacherRequests() {
         <div>
           <ul>
             {finalApplications.map((request, index) => (
-              <div>
-                <li key={index}>{request.student.firstname} {request.student.lastname} - 
+              <div key={index}>
+                <li>{request.student.firstname} {request.student.lastname} - 
                   <button onClick={() => downloadApplication(index)}>View application</button>
                   <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
                   <form>
