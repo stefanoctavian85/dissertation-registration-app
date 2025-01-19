@@ -49,23 +49,23 @@ function Request() {
         )
       );
 
-      fetch("http://localhost:8080/sent-requests", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${storedToken}`,
+    fetch("http://localhost:8080/sent-requests", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${storedToken}`,
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          setError(error.message);
+          return;
+        } else {
+          return res.json();
         }
       })
-        .then((res) => {
-          if (!res.ok) {
-            setError(error.message);
-            return;
-          } else {
-            return res.json();
-          }
-        })
-        .then((data) => {
-          setSentRequest(data.sentRequests);
-        })
+      .then((data) => {
+        setSentRequest(data.sentRequests);
+      })
   }, []);
 
   if (error) {
@@ -88,21 +88,30 @@ function Request() {
 
     const studentId = jwtDecode(token).id;
 
-    const res = await fetch(`http://localhost:8080/submit-request/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${storedToken}`,
-      },
-      body: JSON.stringify({
-        teacherId,
-        studentId,
-      }),
-    });
+    try {
+      const res = await fetch(`http://localhost:8080/submit-request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${storedToken}`,
+        },
+        body: JSON.stringify({
+          teacherId,
+          studentId,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setMessage(data.message);
+      if (!res.ok) {
+        setMessage(data.message);
+        return;
+      }
+
+      setMessage(data.message);
+    } catch (err) {
+      setMessage(err);
+    }
   }
 
   const sendApplication = async (e, request) => {
@@ -168,8 +177,8 @@ function Request() {
               );
             })
             }
-        </ul>
-        <p>{message}</p>
+          </ul>
+          <p>{message}</p>
         </div>
       )}
       <div>
@@ -185,7 +194,7 @@ function Request() {
                     <p>Upload here your request!</p>
                     <form onSubmit={(e) => sendApplication(e, request)}>
                       <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
-                      onChange={submitFile}></input>
+                        onChange={submitFile}></input>
                       <button type="submit">Send final application</button>
                       <p>{message}</p>
                     </form>

@@ -177,6 +177,7 @@ function Profile() {
                       <button type="submit">Send final application</button>
                       <p>{message}</p>
                 </form>
+                <button onClick={requestsHandler}>{btnRequestsText}</button>
               </div>
             ) : (
               <div>

@@ -187,11 +187,11 @@ app.post("/submit-request", async (req, res) => {
       });
     }
 
-    const ifRequestExists = await Request.find({student, teacher});
-    if (ifRequestExists.length !== 0) {
-      return res.status(404).json({
+    const ifRequestExists = await Request.countDocuments({student, teacher});
+    if (ifRequestExists > 0) {
+      return res.status(400).json({
         message: "Request already exists!",
-      })
+      });
     }
 
     const newRequest = new Request({
@@ -213,7 +213,7 @@ app.post("/submit-request", async (req, res) => {
 });
 
 app.get("/requests", async (req, res) => {
-  const { id, username } = req.auth;
+  const { id } = req.auth;
 
   try {
     const teacher = await User.findById(id);
@@ -254,6 +254,12 @@ app.post("/change-request-status", async (req, res) => {
     if (!request) {
       return res.status(404).json({
         message: "Request not found!",
+      })
+    }
+
+    if (request.status === "accepted") {
+      return res.status(400).json({
+        message: "Student has already an accepted application!",
       })
     }
     
@@ -299,14 +305,8 @@ app.get("/sent-requests", async (req, res) => {
     const sentRequests = await Request.find({student: id})
     .populate("teacher", "firstname lastname");
 
-    if (sentRequests.length === 0) {
-      return res.status(404).json({
-        message: "You didn't send any request yet!",
-      });
-    }
-
     return res.status(200).json({
-      sentRequests,
+      sentRequests: sentRequests.length > 0 ? sentRequests : [],
     });
   } catch(err) {
     return res.status(500).json({
@@ -356,7 +356,9 @@ app.get("/final-applications", async (req, res) => {
       })
     }
 
-    const filteredRequests = requests.filter((request) => request.fileUrl.length > 0 && request.fileUrl !== "" && request.status === "approved");
+    const filteredRequests = requests.filter((request) => request.fileUrl !== "" && request.status === "approved");
+    
+    console.log(filteredRequests);
 
     return res.status(200).json({
       filteredRequests,
@@ -418,6 +420,14 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
   const { id, student, status } = req.body;
   
   try {
+    const checkAcceptedRequest = await Request.findOne({student, status: "accepted"});
+
+    if (!checkAcceptedRequest) {
+      return res.status(409).json({
+        message: "Someone has already accepted this application!",
+      });
+    }
+
     const request = await Request.findOne({_id: id, student});
 
     if (!request) {
