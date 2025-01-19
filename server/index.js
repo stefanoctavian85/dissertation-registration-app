@@ -167,9 +167,24 @@ app.get("/teachers", async (req, res) => {
       return res.status(404).json({
         message: "No teachers found",
       });
-    } else {
-      return res.status(200).json(teachers);
     }
+
+    let filteredTeachers = [];
+    for (let teacher of teachers) {
+      const acceptedRequestCount = await Request.countDocuments({
+        teacher: teacher._id,
+        status: "accepted",
+      })
+
+      if (acceptedRequestCount < 5) {
+        filteredTeachers.push(teacher);
+      }
+    }
+
+    return res.status(200).json({
+      filteredTeachers,
+    });
+
   } catch (err) {
     return res.status(500).json({
       message: "An error occured when you sent the request. Please try again later!",

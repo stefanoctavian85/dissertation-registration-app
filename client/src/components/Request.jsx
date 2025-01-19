@@ -32,16 +32,14 @@ function Request() {
     })
       .then((res) => {
         if (!res.ok) {
-          return res.json().then((data) => {
-            setMessage(data.message);
-            return;
-          });
+          setMessage(data.message);
+          return;
         } else {
           return res.json();
         }
       })
       .then((data) => {
-        setTeachers(data);
+        setTeachers(data.filteredTeachers);
       })
       .catch((err) =>
         setError(
@@ -162,6 +160,7 @@ function Request() {
         <p>{message}</p>
       ) : (
         <div>
+          <p>Available teachers:</p>
           <ul>
             {teachers.map((teacher, index) => {
               return (
