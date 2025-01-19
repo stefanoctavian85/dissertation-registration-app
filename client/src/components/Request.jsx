@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
+import "./Request.css";
 
 function Request() {
+  const fileInput = useRef(null);
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [teachers, setTeachers] = useState([]);
   const [sentRequests, setSentRequest] = useState([]);
   const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const submitFile = (e) => {
     setFile(e.target.files[0]);
-  }
+  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -23,11 +26,12 @@ function Request() {
       );
       return;
     }
+    setIsLoading(true);
 
     fetch("http://localhost:8080/teachers", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${storedToken}`,
+        Authorization: `Bearer ${storedToken}`,
       },
     })
       .then((res) => {
@@ -52,8 +56,8 @@ function Request() {
     fetch("http://localhost:8080/sent-requests", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${storedToken}`,
-      }
+        Authorization: `Bearer ${storedToken}`,
+      },
     })
       .then((res) => {
         if (!res.ok) {
@@ -65,7 +69,8 @@ function Request() {
       })
       .then((data) => {
         setSentRequest(data.sentRequests);
-      })
+        setIsLoading(false);
+      });
   }, []);
 
   if (error) {
@@ -109,10 +114,24 @@ function Request() {
       }
 
       setMessage(data.message);
+      const updatedRequest = await fetch(
+        "http://localhost:8080/sent-requests",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        }
+      ).then((res) => res.json());
+      setSentRequest(updatedRequest.sentRequests);
     } catch (err) {
       setMessage(err);
     }
   }
+
+  const handlePickClick = () => {
+    fileInput.current.click();
+  };
 
   const sendApplication = async (e, request) => {
     e.preventDefault();
@@ -144,7 +163,7 @@ function Request() {
     const res = await fetch("http://localhost:8080/send-final-application", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${storedToken}`
+        Authorization: `Bearer ${storedToken}`,
       },
       body: formData,
     });
@@ -153,67 +172,86 @@ function Request() {
     if (!res.ok) {
       setMessage(data.error);
     }
+  };
+
+  if (isLoading) {
+    return <p className="loading">Loading...</p>;
   }
 
   return (
-    <div id="request-main">
-      <p>Submit a new application!</p>
-      {teachers.length === 0 ? (
-        <p>{message}</p>
-      ) : (
-        <div>
-          <ul>
-            {teachers.map((teacher, index) => {
-              return (
-                <li key={index}>
-                  {teacher.firstname + " " + teacher.lastname}
-                  <button
-                    id={`btn-${index}`}
-                    onClick={() => submitRequest(teacher._id)}
-                  >
-                    Send application
-                  </button>
-                </li>
-              );
-            })
-            }
-          </ul>
+    <div className="request-page">
+      <div className="teachers-section">
+        <h2>Submit a New Application</h2>
+        {teachers.length === 0 ? (
           <p>{message}</p>
-        </div>
-      )}
-      <div>
-        {sentRequests.length !== 0 ? (
-          <div>
-            <ul>
-              {sentRequests.map((request, index) => (
-                request.status === "approved" ? (
-                  <div key={index}>
-                    <li key={index}>
-                      {request.teacher.firstname} {request.teacher.lastname} - {request.status}
-                    </li>
-                    <p>Upload here your request!</p>
-                    <form onSubmit={(e) => sendApplication(e, request)}>
-                      <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
-                        onChange={submitFile}></input>
-                      <button type="submit">Send final application</button>
-                      <p>{message}</p>
-                    </form>
-                  </div>
-                ) : (
-                  <li key={index}>
-                    {request.teacher.firstname} {request.teacher.lastname} - {request.status} - {request.message}
-                  </li>
-                )
-              ))}
-            </ul>
+        ) : (
+          <div className="teacher-cards">
+            {teachers.map((teacher, index) => (
+              <div className="card" key={index}>
+                <p>{teacher.firstname + " " + teacher.lastname}</p>
+                <button
+                  className="button"
+                  onClick={() => submitRequest(teacher._id)}
+                >
+                  Send Application
+                </button>
+              </div>
+            ))}
           </div>
-        ) : (<p>You didn't send any request yet!</p>)}
+        )}
+        {error && <div className="error-message">{error}</div>}
+        {message && (
+          <div
+            onClick={() => {
+              setMessage("");
+            }}
+            className="success-message"
+          >
+            {message}
+          </div>
+        )}
+        <div className="requests-section">
+          <h2>Submitted Requests</h2>
+          {sentRequests.length === 0 ? (
+            <p>You haven&apos;t sent any requests yet!</p>
+          ) : (
+            <div className="request-cards">
+              {sentRequests.map((request, index) => (
+                <div className="card" key={index}>
+                  <p>
+                    {request.teacher.firstname} {request.teacher.lastname} -{" "}
+                    {request.status}
+                  </p>
+                  {request.status === "approved" && (
+                    <>
+                      <p>Upload your request here:</p>
+                      <form onSubmit={(e) => sendApplication(e, request)}>
+                        <input
+                          type="file"
+                          accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
+                          onChange={submitFile}
+                          ref={fileInput}
+                          style={{ display: "none" }}
+                        ></input>
+                        <button
+                          id="button"
+                          type="button"
+                          onClick={handlePickClick}
+                        >
+                          Pick a file
+                        </button>
+                        <button className="button" type="submit">
+                          Send final application
+                        </button>
+                      </form>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      <div>
-        <p>Download the application form</p>
-        <a href="http://localhost:8080/download">Download</a>
-      </div>
-      <p>{error}</p>
     </div>
   );
 }

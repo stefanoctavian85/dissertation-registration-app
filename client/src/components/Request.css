@@ -1,0 +1,133 @@
+.request-page {
+  margin-top: 1rem;
+  padding: 2rem;
+  color: hsl(0, 0%, 94%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.teachers-section,
+.requests-section {
+  margin-bottom: 2rem;
+}
+
+h2 {
+  color: hsl(193, 95%, 68%);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.teacher-cards,
+.request-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.card {
+  background: hsl(201, 19%, 29%);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card .button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, hsl(209, 100%, 51%), hsl(193, 95%, 57%));
+  color: #2e2e2e;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.card .button:hover,
+.card .button:active {
+  background: linear-gradient(90deg, hsl(209, 100%, 45%), hsl(193, 95%, 64%));
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+form input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid hsl(0, 0%, 80%);
+}
+
+form .button {
+  margin-top: 0.5rem;
+}
+
+#button {
+  border: 0;
+  padding: 0.5rem 1.5rem;
+  background: hsl(220, 13%, 68%);
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+}
+
+#button:hover,
+#button:focus {
+  background: hsl(221, 14%, 74%);
+}
+
+.error-message {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f87171;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  transition: background 0.3s ease-in;
+  cursor: pointer;
+}
+
+.success-message {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: hsl(142, 69%, 58%);
+  color: hsl(0, 0%, 100%);
+  text-align: center;
+  border-radius: 8px;
+  transition: background 0.3s ease-in;
+  cursor: pointer;
+}
+
+.success-message:hover {
+  background: hsl(142, 69%, 45%);
+}
+
+.error-message:hover {
+  background: hsl(0, 91%, 61%);
+}
+
+.loading {
+  text-align: center;
+  animation: loading 1.2s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    color: hsl(0, 0%, 80%);
+  }
+
+  50% {
+    color: hsl(0, 0%, 50%);
+  }
+
+  100% {
+    color: hsl(0, 0%, 80%);
+  }
+}
