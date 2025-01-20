@@ -8,34 +8,31 @@ function Home({ isLoggedIn }) {
       {isLoggedIn ? (
         <main>
           <section className="section">
-            <h2>Collaborate easily with supervising teachers</h2>
+            <h2>Seamless collaboration with your professor</h2>
             <p>
-              Find and communicate with your supervising teacher
-              to develop your dissertation.
+              Find and communicate with your supervising professor to develop your dissertation.
             </p>
             <p>
-              Send applications directly from the app and receive timely responses.
+              Apply directly from the app and receive immediate response.
             </p>
           </section>
 
           <section className="section">
             <h2>Track your progress of your applications</h2>
             <p>
-              Access a personalized dashboard where you can check the status of submitted applications
-              and details about professors guiding you.
+              Access a personalised dashboard. See the status of your submitted applications and details of your supervising professors.
             </p>
             <p>
-              Plan all the details for your disseratition.
+              Plan out all the essentials of your dissertation research.
             </p>
           </section>
         </main>
       ) : (
         <main className="main-content">
           <div className="not-logged-in">
-            <h1>Bine ai venit!</h1>
+            <h1>Welcome!</h1>
             <p>
-              Pentru a accesa aplicația, te rugăm să te loghezi sau să îți
-              creezi un cont nou.
+              To access the application, please log in or create a new account!
             </p>
             <div className="not-logged-in-actions">
               <NavLink href="/login">Login</NavLink>

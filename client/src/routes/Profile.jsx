@@ -73,10 +73,6 @@ function Profile() {
               },
             })
               .then((res) => {
-                if (!res.ok) {
-                  setError(res.error);
-                  return;
-                }
                 return res.json();
               })
               .then((response) => {
@@ -129,54 +125,17 @@ function Profile() {
       });
   }
 
-  const sendApplication = async (e, request) => {
-    e.preventDefault();
-
-    const storedToken = localStorage.getItem("token");
-
-    if (!storedToken) {
-      navigate("/login");
-      return;
-    }
-
-    if (!file) {
-      setMessage("Please upload a file!");
-      return;
-    } else {
-      setMessage("");
-    }
-
-    let studentId = jwtDecode(token).id;
-    let teacherId = request.teacher._id;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("student", studentId);
-    formData.append("teacher", teacherId);
-
-    const res = await fetch("http://localhost:8080/send-final-application", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${storedToken}`,
-      },
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      setMessage(data.error);
-    }
-  };
-
   return (
     <div className="profile-page">
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
-        <button className="profile-button" onClick={requestsHandler}>
-          {isStudent === true
-            ? "View Your Applications"
-            : "Manage Received Applications"}
-        </button>
+        {!acceptedApplication ? (
+          <button className="profile-button" onClick={requestsHandler}>
+            {isStudent === true
+              ? "View Your Applications"
+              : "Manage Received Applications"}
+          </button>
+        ) : null}
       </div>
       <div className="profile-content">
         {acceptedApplication ? (
@@ -224,7 +183,7 @@ function Profile() {
         ) : (
           <div className="no-application-card">
             <h2>Applications Accepted</h2>
-            {acceptedApplications.length > 0 ? (
+            {acceptedApplications && Array.isArray(acceptedApplications) && acceptedApplications.length > 0 ? (
               <ul className="accepted-students">
                 {acceptedApplications.map((application, index) => (
                   <li key={index} className="row">
@@ -243,7 +202,9 @@ function Profile() {
                   </li>
                 ))}
               </ul>
-            ) : null}
+            ) : (
+              <p className="text">No Accepted Applications Yet!</p>
+            )}
           </div>
         )}
       </div>
