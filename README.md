@@ -29,7 +29,7 @@ The goal of this application is to streamline the dissertation registration proc
 - Approve or reject student requests with a justification.
 - Upload files in response to approved requests.
 
-### Rules
+### Business Rules
 - A student can submit requests to multiple professors, but only one approval is allowed.
 - Once approved by a professor, the student cannot receive approvals from others.
 - Rejected requests allow students to submit new requests.
@@ -94,3 +94,15 @@ Ensure you have the following installed on your machine:
    ```bash
    npm run dev
    ```
+## Future Enhancements
+- **User Interface**: Enhance the UI for improved accessibility and mobile responsiveness.
+- **Real-Time Updates**: Implement real-time notifications for request status changes.
+- **Role-Based Enhancements**: Further refine role-based permissions, allowing customized user roles (e.g., department heads).
+- **File Versioning**: Enable file versioning for documents uploaded by professors or students.
+- **Automated Reminders**: Integrate email or SMS notifications for important deadlines and status updates.
+- **Student Analytics**: Add analytics for students to track their submission progress and feedback history.
+
+## Contributions
+Feel free to fork the repository and contribute to the project. Contributions in the form of pull requests, bug fixes, and improvements are always welcome.
+
+
