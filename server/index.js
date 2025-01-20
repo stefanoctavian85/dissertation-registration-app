@@ -490,6 +490,7 @@ app.get("/accepted-application", async (req, res) => {
 app.get("/accepted-applications", async (req, res) => {
   const { id } = req.auth;
 
+
   try {
     let request = await Request.find({ teacher: id, status: "accepted" }).populate("student", "firstname lastname");
 

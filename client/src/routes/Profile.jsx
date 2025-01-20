@@ -50,6 +50,7 @@ function Profile() {
           setFirstname(data.firstname);
           setLastname(data.lastname);
           setIsStudent(data.isStudent);
+
           if (data.isStudent) {
             fetch("http://localhost:8080/accepted-application", {
               method: "GET",
@@ -58,10 +59,6 @@ function Profile() {
               },
             })
               .then((res) => {
-                if (!res.ok) {
-                  setError(res.error);
-                  return;
-                }
                 return res.json();
               })
               .then((response) => {
@@ -83,7 +80,6 @@ function Profile() {
                 return res.json();
               })
               .then((response) => {
-                console.log(response.request);
                 setAcceptedApplications(response.request);
               })
               .catch((err) => setError(err));
@@ -201,7 +197,19 @@ function Profile() {
                   View Application
                 </button>
               </>
-            ) : null}
+            ) : (
+              <>
+                <div className="no-application-card">
+                  <h2>No Accepted Applications Yet</h2>
+                  <p className="text">
+                    Start by submitting a new request to a coordinator.
+                  </p>
+                  <button className="profile-button" onClick={requestsHandler}>
+                    Submit a Request
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : isStudent === true ? (
           <div className="no-application-card">
