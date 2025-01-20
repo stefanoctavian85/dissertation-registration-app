@@ -164,7 +164,9 @@ function Profile() {
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
         <button className="profile-button" onClick={requestsHandler}>
-          {btnRequestsText}
+        {isStudent
+            ? "View Your Applications"
+            : "Manage Received Applications"}
         </button>
       </div>
       <div className="profile-content">
@@ -173,7 +175,7 @@ function Profile() {
             {acceptedApplication.status === "accepted" ? (
               <>
                 <h2>Application Accepted</h2>
-                <p className="coordinator">
+                <p className="text">
                   Coordinator:{" "}
                   {acceptedApplication.teacher.firstname +
                     " " +
@@ -189,7 +191,7 @@ function Profile() {
             ) : (
               <>
                 <h2>Application Rejected</h2>
-                <p className="coordinator">
+                <p className="text">
                   Coordinator:{" "}
                   {acceptedApplication.teacher.firstname +
                     " " +
@@ -201,7 +203,7 @@ function Profile() {
         ) : (
           <div className="no-application-card">
             <h2>No Accepted Applications Yet</h2>
-            <p>Start by submitting a new request to a coordinator.</p>
+            <p className="text">Start by submitting a new request to a coordinator.</p>
             <button className="profile-button" onClick={requestsHandler}>
               Submit a Request
             </button>
