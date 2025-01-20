@@ -164,50 +164,56 @@ function Profile() {
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
         <button className="profile-button" onClick={requestsHandler}>
-          {isStudent
-            ? "View Your Applications"
-            : "Manage Received Applications"}
+          {btnRequestsText}
         </button>
       </div>
       <div className="profile-content">
-        {acceptedApplication ? (
-          <div className="application-card">
-            {acceptedApplication ? (
-              <>
-                <h2>Application Approved</h2>
-                <p className="coordinator">
-                  Coordinator:{" "}
-                  {acceptedApplication.teacher.firstname +
-                    " " +
-                    acceptedApplication.teacher.lastname}
-                </p>
-                <button
-                  className="profile-button profile-download-button"
-                  onClick={downloadApplication}
-                >
-                  View Application
-                </button>
-              </>
-            ) : (
-              <>
-                <h2>Application Rejected</h2>
-                <p>
-                  Coordinator:{" "}
-                  {acceptedApplication.teacher.firstname +
-                    " " +
-                    acceptedApplication.teacher.lastname}
-                </p>
-              </>
-            )}
-          </div>
+        {isStudent ? (
+          acceptedApplication ? (
+            <div className="application-card">
+              {acceptedApplication ? (
+                <>
+                  <h2>Application Approved</h2>
+                  <p className="text">
+                    Coordinator:{" "}
+                    {acceptedApplication.teacher.firstname +
+                      " " +
+                      acceptedApplication.teacher.lastname}
+                  </p>
+                  <button
+                    className="profile-button profile-download-button"
+                    onClick={downloadApplication}
+                  >
+                    View Application
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2>Application Rejected</h2>
+                  <p className="text">
+                    Coordinator:{" "}
+                    {acceptedApplication.teacher.firstname +
+                      " " +
+                      acceptedApplication.teacher.lastname}
+                  </p>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="no-application-card">
+              <h2>No Accepted Applications Yet</h2>
+              <p className="text">
+                Start by submitting a new request to a coordinator.
+              </p>
+              <button className="profile-button" onClick={requestsHandler}>
+                Submit a Request
+              </button>
+            </div>
+          )
         ) : (
-          <div className="no-application-card">
-            <h2>No Accepted Applications Yet</h2>
-            <p>Start by submitting a new request to a coordinator.</p>
-            <button className="profile-button" onClick={requestsHandler}>
-              Submit a Request
-            </button>
-          </div>
+          <p className="info-message">
+            Manage received applications from students.
+          </p>
         )}
       </div>
       {error && <p className="error-message">{error}</p>}
