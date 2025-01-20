@@ -4,6 +4,55 @@ info:
   version: 1.0.0
   description: API for the Dissertation Registration App.
 paths:
+  /register:
+    post:
+      summary: User registration
+      description: Register a new user with a username, email, and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                firstname:
+                  type: string
+                  description: The first name of the user.
+                lastname:
+                  type: string
+                  description: The last name of the user.
+                email:
+                  type: string
+                  description: The email address of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+      responses:
+        '201':
+          description: Registration successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register was successful!
+        '400':
+          description: User already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User already exists!
+        '500':
+          description: Server error during registration process.
   /login:
     post:
       summary: User login
@@ -38,7 +87,7 @@ paths:
                   token:
                     type: string
                     description: JWT token for authentication.
-        '400':
+        '401':
           description: Invalid username or password.
           content:
             application/json:
@@ -73,7 +122,16 @@ paths:
                   phoneNumber:
                     type: number
                     description: The phone number of the user.
-        '400':
+                  firstname:
+                    type: string
+                    description: The first name of the user.
+                  lastname:
+                    type: string
+                    description: The last name of the user.
+                  isStudent:
+                    type: boolean
+                    description: Whether the user is a student.
+        '404':
           description: The user does not exist.
           content:
             application/json:
@@ -83,10 +141,54 @@ paths:
                   message:
                     type: string
                     example: The user does not exist!
-  /register:
+        '500':
+          description: Server error during profile retrieval.
+  /teachers:
+    get:
+      summary: Get available teachers
+      description: Retrieve a list of teachers with fewer than 5 accepted requests.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of teachers available for requests.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filteredTeachers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The unique ID of the teacher.
+                        firstname:
+                          type: string
+                          description: The first name of the teacher.
+                        lastname:
+                          type: string
+                          description: The last name of the teacher.
+        '404':
+          description: No teachers found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No teachers found.
+        '500':
+          description: Server error during teacher retrieval.
+  /submit-request:
     post:
-      summary: User registration
-      description: Register a new user with a username, email, and password.
+      summary: Submit a request
+      description: Allows a student to submit a request to a teacher.
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -94,18 +196,15 @@ paths:
             schema:
               type: object
               properties:
-                username:
+                teacherId:
                   type: string
-                  description: The username of the user.
-                email:
+                  description: The ID of the teacher.
+                studentId:
                   type: string
-                  description: The email of the user.
-                password:
-                  type: string
-                  description: The password of the user.
+                  description: The ID of the student.
       responses:
         '201':
-          description: Registration successful.
+          description: Request successfully submitted.
           content:
             application/json:
               schema:
@@ -113,9 +212,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Register was successful!
+                    example: Request successfully sent to John Doe.
         '400':
-          description: User already exists.
+          description: Request already exists.
           content:
             application/json:
               schema:
@@ -123,21 +222,573 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: User already exists!
+                    example: Request already exists!
+        '404':
+          description: Student or teacher not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Student or teacher not found!
         '500':
-          description: Server error during registration process.
-  /api-doc:
+          description: Server error during request submission.
+  /requests:
     get:
-      summary: API documentation
-      description: Access the Swagger API documentation.
+      summary: Get sent requests
+      description: Retrieve all requests sent by the authenticated teacher.
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Swagger UI documentation loaded successfully.
+          description: List of sent requests.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requests:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The unique ID of the request.
+                        student:
+                          type: object
+                          properties:
+                            firstname:
+                              type: string
+                              description: The first name of the student.
+                            lastname:
+                              type: string
+                              description: The last name of the student.
         '404':
-          description: API documentation not found.
-components:
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+          description: Teacher or requests not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Teacher not found!
+        '500':
+          description: Server error during request retrieval.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+  /change-request-status:
+    post:
+      summary: Change request status
+      description: Update the status of a request (e.g., accepted, rejected).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: The ID of the request.
+                status:
+                  type: string
+                  description: The new status of the request (e.g., accepted, rejected).
+                message:
+                  type: string
+                  description: A message for rejection (optional).
+      responses:
+        '200':
+          description: Request updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request update successfully!
+        '400':
+          description: Invalid request update.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Student has already an accepted application!
+        '404':
+          description: Request not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request not found!
+        '500':
+          description: Server error during request status update.
+  /accepted-requests-count:
+    get:
+      summary: Get accepted requests count
+      description: Retrieve the count of accepted requests for the authenticated teacher.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Count of accepted requests.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  acceptedRequests:
+                    type: integer
+                    description: Number of accepted requests.
+        '500':
+          description: Server error during count retrieval.
+  /sent-requests:
+  get:
+    summary: Get sent requests
+    description: Retrieve all requests sent by the authenticated student.
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: List of sent requests.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sentRequests:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: The unique ID of the request.
+                      teacher:
+                        type: object
+                        properties:
+                          firstname:
+                            type: string
+                            description: The first name of the teacher.
+                          lastname:
+                            type: string
+                            description: The last name of the teacher.
+      '500':
+        description: Server error during request retrieval.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: An error occurred when you sent the request. Please try again later!
+  /send-final-application:
+    post:
+      summary: Send final application with file
+      description: Sends a final application with a file, updates the request status if it is approved, and associates the file URL.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to be uploaded.
+                student:
+                  type: string
+                  description: The student ID associated with the request.
+                teacher:
+                  type: string
+                  description: The teacher ID associated with the request.
+      responses:
+        '200':
+          description: Application sent successfully and request updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Application sent successfully!
+        '404':
+          description: Request not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request not found!
+        '500':
+          description: Server error when processing the application.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+  /final-applications:
+    get:
+      summary: Get approved final applications with files
+      description: Retrieves all final applications that are approved and contain a file.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of approved final applications with file URLs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filteredRequests:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: The unique ID of the request.
+                        student:
+                          type: object
+                          properties:
+                            firstname:
+                              type: string
+                              description: The first name of the student.
+                            lastname:
+                              type: string
+                              description: The last name of the student.
+                        fileUrl:
+                          type: string
+                          description: The URL of the file uploaded with the request.
+                        status:
+                          type: string
+                          description: The status of the request (should be "approved").
+        '404':
+          description: No approved final applications found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Requests not found!
+        '500':
+          description: Server error during request retrieval.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+  /uploads/{filename}:
+    get:
+      summary: Download a file by filename
+      description: Allows the user to download a specific file from the server by providing the filename.
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          description: The name of the file to be downloaded.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File successfully downloaded.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File not found!
+        '500':
+          description: Server error during file download.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred while trying to download the file. Please try again later!
+
+  /download:
+    get:
+      summary: Download the Model_cerere.pdf file
+      description: Allows the user to download a specific PDF file, Model_cerere.pdf, from the server.
+      responses:
+        '200':
+          description: File successfully downloaded.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File not found!
+        '500':
+          description: Server error during file download.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred while trying to download the file. Please try again later!
+  /reject-final-application:
+    post:
+      summary: Reject a final application
+      description: Rejects a final application by updating the status of the request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: The new status to set for the request (e.g., "rejected").
+                id:
+                  type: string
+                  description: The unique ID of the request.
+                student:
+                  type: string
+                  description: The ID of the student who made the request.
+      responses:
+        '200':
+          description: Final application successfully rejected.
+        '404':
+          description: Request not found or the request was not approved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request not found or the request is not approved.
+        '500':
+          description: Server error while processing the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+
+  /accept-final-application:
+    post:
+      summary: Accept a final application and upload a file
+      description: Accepts a final application, updates the status, and uploads a file to the request.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The unique ID of the request.
+                student:
+                  type: string
+                  description: The ID of the student who made the request.
+                status:
+                  type: string
+                  description: The new status to set for the request (e.g., "accepted").
+                file:
+                  type: string
+                  format: binary
+                  description: The file being uploaded with the application.
+      responses:
+        '200':
+          description: Final application successfully accepted and file uploaded.
+        '409':
+          description: Application has already been accepted by someone else.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Someone has already accepted this application!
+        '404':
+          description: Request not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Request not found!
+        '500':
+          description: Server error while processing the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+  /accepted-application:
+    get:
+      summary: Get accepted application for a student
+      description: Retrieves the accepted application for the authenticated student.
+      responses:
+        '200':
+          description: Accepted application found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request:
+                    type: object
+                    properties:
+                      student:
+                        type: object
+                        properties:
+                          firstname:
+                            type: string
+                          lastname:
+                            type: string
+                      teacher:
+                        type: object
+                        properties:
+                          firstname:
+                            type: string
+                          lastname:
+                            type: string
+                      status:
+                        type: string
+                        description: The status of the application (e.g., "accepted").
+        '404':
+          description: No accepted application found for the student.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Requests not found!
+        '500':
+          description: Server error while retrieving the accepted application.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
+
+  /accepted-applications:
+    get:
+      summary: Get accepted applications for a teacher
+      description: Retrieves all accepted applications for the teacher identified by the authenticated user.
+      responses:
+        '200':
+          description: Accepted applications found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        student:
+                          type: object
+                          properties:
+                            firstname:
+                              type: string
+                            lastname:
+                              type: string
+                        teacher:
+                          type: object
+                          properties:
+                            firstname:
+                              type: string
+                            lastname:
+                              type: string
+                        status:
+                          type: string
+                          description: The status of the application (e.g., "accepted").
+        '404':
+          description: No accepted applications found for the teacher.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Requests not found!
+        '500':
+          description: Server error while retrieving the accepted applications.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: An error occurred when you sent the request. Please try again later!
