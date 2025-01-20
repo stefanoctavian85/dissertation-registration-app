@@ -97,10 +97,9 @@ Ensure you have the following installed on your machine:
 ## Future Enhancements
 - **User Interface**: Enhance the UI for improved accessibility and mobile responsiveness.
 - **Real-Time Updates**: Implement real-time notifications for request status changes.
-- **Role-Based Enhancements**: Further refine role-based permissions, allowing customized user roles (e.g., department heads).
 - **File Versioning**: Enable file versioning for documents uploaded by professors or students.
 - **Automated Reminders**: Integrate email or SMS notifications for important deadlines and status updates.
-- **Student Analytics**: Add analytics for students to track their submission progress and feedback history.
+
 
 ## Contributions
 Feel free to fork the repository and contribute to the project. Contributions in the form of pull requests, bug fixes, and improvements are always welcome.
