@@ -43,6 +43,18 @@ function Register() {
       return;
     }
 
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(email)) {
+      setError("Invalid email.");
+      return;
+    }
+
+    if (password.length < 5) {
+      setError("Invalid password. Password must be greater than 5 characters.");
+      return;
+    }
+
     const userCredentials = {
       username,
       firstname,
