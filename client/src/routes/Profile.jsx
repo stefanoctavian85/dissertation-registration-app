@@ -215,7 +215,9 @@ function Profile() {
         ) : isStudent === true ? (
           <div className="no-application-card">
             <h2>No Accepted Applications Yet</h2>
-            <p className="text">Start by submitting a new request to a coordinator.</p>
+            <p className="text">
+              Start by submitting a new request to a coordinator.
+            </p>
             <button className="profile-button" onClick={requestsHandler}>
               Submit a Request
             </button>
@@ -226,7 +228,7 @@ function Profile() {
             {acceptedApplications.length > 0 ? (
               <ul className="accepted-students">
                 {acceptedApplications.map((application, index) => (
-                  <li key={index}>
+                  <li key={index} className="row">
                     <p className="text">
                       Student:{" "}
                       {application.student.firstname +
