@@ -238,6 +238,11 @@ function Request() {
                         >
                           Pick a file
                         </button>
+                        {file && (
+                          <p className="file-name">
+                            Selected file: {file.name}
+                          </p>
+                        )}
                         <button className="button" type="submit">
                           Send final application
                         </button>
