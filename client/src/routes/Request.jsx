@@ -10,11 +10,14 @@ function Request() {
   const [message, setMessage] = useState("");
   const [teachers, setTeachers] = useState([]);
   const [sentRequests, setSentRequest] = useState([]);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const submitFile = (e) => {
-    setFile(e.target.files[0]);
+  const handleFileChange = (e, requestId) => {
+    setFiles((prevFiles) => ({
+      ...prevFiles,
+      [requestId]: e.target.files[0],
+    }));
   };
 
   useEffect(() => {
@@ -68,8 +71,11 @@ function Request() {
       })
       .then((data) => {
         setSentRequest(data.sentRequests);
-        setIsLoading(false);
       });
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timeout);
   }, []);
 
   if (error) {
@@ -128,13 +134,14 @@ function Request() {
     }
   }
 
-  const handlePickClick = () => {
-    fileInput.current.click();
+  const handlePickClick = async (requestId) => {
+    document.getElementById(`file-input-${requestId}`).click();
   };
 
   const sendApplication = async (e, request) => {
     e.preventDefault();
-
+    console.log(request);
+    const file = files[request._id];
     const storedToken = localStorage.getItem("token");
 
     if (!storedToken) {
@@ -171,6 +178,9 @@ function Request() {
     if (!res.ok) {
       setMessage(data.error);
     }
+    setSentRequest((prevRequests) =>
+      prevRequests.filter((r) => r._id !== request._id)
+    );
     setMessage("The application has been successfully submitted!");
   };
 
@@ -213,7 +223,9 @@ function Request() {
         <div className="requests-section">
           <h2>Submitted Requests</h2>
           {sentRequests.length === 0 ? (
-            <p>You haven&apos;t sent any requests yet!</p>
+            <p className="no-requests">
+              You haven&apos;t sent any requests yet!
+            </p>
           ) : (
             <div className="request-cards">
               {sentRequests.map((request, index) => (
@@ -227,23 +239,24 @@ function Request() {
                       <p>Upload your request here:</p>
                       <form onSubmit={(e) => sendApplication(e, request)}>
                         <input
+                          id={`file-input-${request._id}`}
                           className="input"
                           type="file"
                           accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
-                          onChange={submitFile}
+                          onChange={(e) => handleFileChange(e, request._id)}
                           ref={fileInput}
                           style={{ display: "none" }}
                         ></input>
                         <button
                           id="button"
                           type="button"
-                          onClick={handlePickClick}
+                          onClick={() => handlePickClick(request._id)}
                         >
                           Pick a file
                         </button>
-                        {file && (
+                        {files[request._id] && (
                           <p className="file-name">
-                            Selected file: {file.name}
+                            Selected file: {files[request._id].name}
                           </p>
                         )}
                         <button className="button" type="submit">

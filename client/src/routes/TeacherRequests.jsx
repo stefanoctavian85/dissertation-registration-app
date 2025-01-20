@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./TeacherRequest.css";
+import Loading from "../components/Loading";
 
 function TeacherRequests() {
+  const fileInput = useRef(null);
   const [token, setToken] = useState("");
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState("");
@@ -96,6 +98,10 @@ function TeacherRequests() {
     setRejectionMessage(e.target.value);
   }
 
+  function handlePickClick() {
+    fileInput.current.click();
+  }
+
   async function handleRequest(id, status) {
     const requestResponse = {
       requestId: id,
@@ -113,6 +119,9 @@ function TeacherRequests() {
     });
 
     if (res.ok) {
+      setRequests((prevRequests) =>
+        prevRequests.filter((req) => req._id !== id)
+      );
       setNeedsUpdate(true);
     }
   }
@@ -176,10 +185,6 @@ function TeacherRequests() {
     console.log(file);
 
     if (e.target.value === "accepted") {
-      setFinalApplications(
-        finalApplications.filter((request) => request._id !== reqId)
-      );
-
       const formData = new FormData();
       formData.append("file", file);
       formData.append("id", reqId);
@@ -196,12 +201,14 @@ function TeacherRequests() {
           body: formData,
         }
       );
+      if (res.ok) {
+        setFinalApplications((prevReq) =>
+          prevReq.filter((req) => req._id !== reqId)
+        );
+        setNeedsUpdate(true);
+      }
     } else if (e.target.value === "rejected") {
-      setFinalApplications(
-        finalApplications.filter((request) => request._id !== reqId)
-      );
-
-      fetch("http://localhost:8080/reject-final-application", {
+      const res = fetch("http://localhost:8080/reject-final-application", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${storedToken}`,
@@ -213,6 +220,12 @@ function TeacherRequests() {
           student: studentId,
         }),
       });
+      if (res.ok) {
+        setFinalApplications((prevReq) =>
+          prevReq.filter((req) => req._id !== reqId)
+        );
+        setNeedsUpdate(true);
+      }
     }
   };
 
@@ -222,7 +235,7 @@ function TeacherRequests() {
         <h1>Dissertation Management</h1>
         <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
       </div>
-      <div className="main-content">
+      <div className="main">
         <div className="fragment preliminary-requests">
           <h2>Preliminary Requests</h2>
           {requests.filter((req) => req.status === "pending").length > 0 ? (
@@ -274,12 +287,21 @@ function TeacherRequests() {
                   >
                     View Application
                   </button>
-                  <input
-                    type="file"
-                    onChange={submitFile}
-                    className="file-input"
-                    accept=".pdf,.doc,.docx"
-                  />
+                  <div className="file-btn-wrapper">
+                    <button className="btn-upload" onClick={handlePickClick}>
+                      Choose File
+                    </button>
+                    <span className="file-name">
+                      {file ? file.name : "No file selected"}
+                    </span>
+                    <input
+                      type="file"
+                      onChange={submitFile}
+                      className="file-input"
+                      accept=".pdf,.doc,.docx"
+                      ref={fileInput}
+                    />
+                  </div>
                   <button
                     className="accept-button"
                     onClick={(e) =>

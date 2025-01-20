@@ -52,7 +52,6 @@ function Profile() {
           setFirstname(data.firstname);
           setLastname(data.lastname);
           setIsStudent(data.isStudent);
-          setIsLoading(false);
           if (data.isStudent) {
             fetch("http://localhost:8080/accepted-application", {
               method: "GET",
@@ -61,11 +60,9 @@ function Profile() {
               },
             })
               .then((res) => {
-                setIsLoading(false);
                 return res.json();
               })
               .then((response) => {
-                setIsLoading(false);
                 setAcceptedApplication(response.request);
               })
               .catch((err) => setError(err));
@@ -77,11 +74,9 @@ function Profile() {
               },
             })
               .then((res) => {
-                setIsLoading(false);
                 return res.json();
               })
               .then((response) => {
-                setIsLoading(false);
                 setAcceptedApplications(response.request);
               })
               .catch((err) => setError(err));
@@ -94,6 +89,10 @@ function Profile() {
         })
         .catch((err) => setError(err));
     }
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timeout);
   }, []);
 
   function requestsHandler() {

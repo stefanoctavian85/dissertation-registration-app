@@ -4,11 +4,7 @@
   align-items: center;
   min-height: calc(100vh - 70px);
   padding: 20px;
-  background: linear-gradient(
-    to bottom right,
-    hsl(214, 82%, 51%),
-    hsl(122, 39%, 49%)
-  );
+  margin-top: 1rem;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -103,7 +99,7 @@
 }
 
 .login-container .error-message {
-  color: #d9534f;
+  color: white;
   font-size: 0.9rem;
   margin-top: 10px;
 }

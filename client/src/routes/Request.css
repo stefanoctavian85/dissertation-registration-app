@@ -15,9 +15,12 @@
 }
 
 .teachers-section h2 {
-  color: hsl(233, 97%, 54%);
-  text-align: center;
-  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+  color: hsl(191, 78%, 78%);
+  text-transform: uppercase;
+  border-bottom: 2px solid hsl(191, 78%, 78%);
 }
 
 .teacher-cards,
@@ -134,4 +137,25 @@ form .button {
   100% {
     color: hsl(0, 0%, 80%);
   }
+}
+
+.no-requests {
+  text-align: center;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: hsl(0, 86%, 50%);
+  margin-top: 1rem;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  color: hsl(191, 78%, 78%);
+  text-align: center;
+  margin-top: 0.5rem;
+  word-wrap: break-word;
+}
+.card p {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
