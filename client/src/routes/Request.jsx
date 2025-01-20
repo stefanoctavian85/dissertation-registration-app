@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { jwtDecode } from "jwt-decode";
 import "./Request.css";
+import Loading from "../components/Loading";
 
 function Request() {
   const fileInput = useRef(null);
@@ -170,11 +171,11 @@ function Request() {
     if (!res.ok) {
       setMessage(data.error);
     }
-    setMessage("The application has been successfully submitted!")
+    setMessage("The application has been successfully submitted!");
   };
 
   if (isLoading) {
-    return <p className="loading">Loading...</p>;
+    return <Loading />;
   }
 
   return (
@@ -226,6 +227,7 @@ function Request() {
                       <p>Upload your request here:</p>
                       <form onSubmit={(e) => sendApplication(e, request)}>
                         <input
+                          className="input"
                           type="file"
                           accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
                           onChange={submitFile}

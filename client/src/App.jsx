@@ -8,6 +8,7 @@ import Register from "./routes/Register.jsx";
 import Request from "./routes/Request.jsx";
 import TeacherRequests from "./routes/TeacherRequests.jsx";
 import { useEffect, useState } from "react";
+import BackgroundManager from "./components/BackgroundManager.jsx";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +25,7 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <BackgroundManager />
         <Navbar isLoggedIn={isLoggedIn} handleLoginStatus={handleLoginStatus} />
         <Routes>
           <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />

@@ -1,0 +1,145 @@
+.teacher-requests-page {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 2rem;
+  color: white;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2rem;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.preliminary-requests,
+.final-applications {
+  background: hsl(215, 28%, 17%);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.fragment {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.fragment h2 {
+  color: hsl(213, 94%, 68%);
+  border-bottom: 2px solid hsl(213, 94%, 68%);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.request-card,
+.application-card-teacher {
+  background: hsl(217, 19%, 27%);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.request-card p,
+.application-card-teacher p {
+  margin: 0;
+}
+
+.cta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.accept-button {
+  background: hsl(160, 84%, 39%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in;
+}
+
+.accept-button:hover {
+  background: hsl(160, 84%, 29%);
+}
+
+.reject-button {
+  background: hsl(0, 84%, 60%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in;
+}
+
+.reject-button:hover {
+  background: hsl(0, 84%, 50%);
+}
+
+.view-button {
+  background: hsl(217, 91%, 60%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in;
+}
+
+.view-button:hover {
+  background: hsl(217, 91%, 50%);
+}
+
+.file-input {
+}
+
+.error-message {
+  color: hsl(0, 91%, 71%);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: hsl(142, 69%, 58%);
+  color: hsl(0, 0%, 100%);
+  text-align: center;
+  border-radius: 8px;
+  transition: background 0.3s ease-in;
+  cursor: pointer;
+}
+
+.message:hover {
+  background: hsl(142, 69%, 45%);
+}
+
+.rejection-message {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.rejection-message:focus {
+  border-color: #57a0ff;
+  outline: none;
+}

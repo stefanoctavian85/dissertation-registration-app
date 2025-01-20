@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./TeacherRequest.css";
 
 function TeacherRequests() {
   const [token, setToken] = useState("");
@@ -13,7 +14,7 @@ function TeacherRequests() {
 
   const submitFile = (e) => {
     setFile(e.target.files[0]);
-  }
+  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -30,7 +31,7 @@ function TeacherRequests() {
       fetch("http://localhost:8080/requests", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${storedToken}`,
+          Authorization: `Bearer ${storedToken}`,
         },
       })
         .then((res) => {
@@ -49,7 +50,7 @@ function TeacherRequests() {
       fetch("http://localhost:8080/accepted-requests-count", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${storedToken}`,
+          Authorization: `Bearer ${storedToken}`,
         },
       })
         .then((res) => {
@@ -71,7 +72,7 @@ function TeacherRequests() {
       fetch("http://localhost:8080/final-applications", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${storedToken}`,
+          Authorization: `Bearer ${storedToken}`,
         },
       })
         .then((res) => {
@@ -102,17 +103,14 @@ function TeacherRequests() {
       message: rejectionMessage,
     };
 
-    const res = await fetch(
-      "http://localhost:8080/change-request-status",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestResponse),
-      }
-    );
+    const res = await fetch("http://localhost:8080/change-request-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(requestResponse),
+    });
 
     if (res.ok) {
       setNeedsUpdate(true);
@@ -133,8 +131,8 @@ function TeacherRequests() {
     fetch(`http://localhost:8080/${finalApplications[index].fileUrl}`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${storedToken}`,
-      }
+        Authorization: `Bearer ${storedToken}`,
+      },
     })
       .then((res) => {
         if (!res.ok) {
@@ -153,7 +151,7 @@ function TeacherRequests() {
       })
       .catch((err) => {
         setError(err);
-      })
+      });
   }
 
   const handleFinalApplication = async (e, reqId, studentId, file) => {
@@ -161,7 +159,9 @@ function TeacherRequests() {
     setToken(storedToken);
 
     if (!storedToken) {
-      setError("You don't have the authorization to be here! Please log in first!");
+      setError(
+        "You don't have the authorization to be here! Please log in first!"
+      );
       return;
     }
 
@@ -176,7 +176,9 @@ function TeacherRequests() {
     console.log(file);
 
     if (e.target.value === "accepted") {
-      setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
+      setFinalApplications(
+        finalApplications.filter((request) => request._id !== reqId)
+      );
 
       const formData = new FormData();
       formData.append("file", file);
@@ -184,98 +186,140 @@ function TeacherRequests() {
       formData.append("student", studentId);
       formData.append("status", "accepted");
 
-      const res = await fetch("http://localhost:8080/accept-final-application", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${storedToken}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        "http://localhost:8080/accept-final-application",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+          body: formData,
+        }
+      );
     } else if (e.target.value === "rejected") {
-      setFinalApplications(finalApplications.filter((request) => request._id !== reqId));
+      setFinalApplications(
+        finalApplications.filter((request) => request._id !== reqId)
+      );
 
       fetch("http://localhost:8080/reject-final-application", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${storedToken}`,
+          Authorization: `Bearer ${storedToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: "rejected", id: reqId, student: studentId }),
+        body: JSON.stringify({
+          status: "rejected",
+          id: reqId,
+          student: studentId,
+        }),
       });
     }
-  }
+  };
 
   return (
-    <div id="teacher-requests-main">
-      {token ? (
-        <div>
-          <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
-      {!requests ? (
-        <p>{error}</p>
-      ) : (
-        <div>
-          {acceptedRequestsNumber < 5 ? (
-            <div>
-              <p>Preliminary requests:</p>
-              <ul>
-                {requests.filter(request => request.status === "pending").length > 0 ? (
-                  requests.map(
-                    (request, index) =>
-                      request.status === "pending" && (
-                        <li key={index}>
-                          {request.student.firstname} {request.student.lastname}
-                          <button
-                            onClick={() => handleRequest(request._id, "approved")}
-                          >
-                            Accept
-                          </button>
-                          <input
-                            type="text"
-                            placeholder="Reason for rejection"
-                            onChange={(e) => submitRejectionMessage(e)}
-                          />
-                          <button
-                            onClick={() => handleRequest(request._id, "rejected")}
-                          >
-                            Reject
-                          </button>
-                        </li>
-                      ))
-                ) : (<p>You don't have new requests!</p>)}
-              </ul>
-            </div>
+    <div className="teacher-requests-page">
+      <div className="header">
+        <h1>Dissertation Management</h1>
+        <p>Number of accepted applications: {acceptedRequestsNumber}/5</p>
+      </div>
+      <div className="main-content">
+        <div className="fragment preliminary-requests">
+          <h2>Preliminary Requests</h2>
+          {requests.filter((req) => req.status === "pending").length > 0 ? (
+            requests
+              .filter((req) => req.status === "pending")
+              .map((request, index) => (
+                <div key={index} className="request-card">
+                  <p>
+                    {request.student.firstname} {request.student.lastname}
+                  </p>
+                  <div className="cta">
+                    <button
+                      className="accept-button"
+                      onClick={() => handleRequest(request._id, "approved")}
+                    >
+                      Accept
+                    </button>
+                    <input
+                      type="text"
+                      className="rejection-message"
+                      placeholder="Reason for rejection"
+                      onChange={(e) => setRejectionMessage(e.target.value)}
+                    />
+                    <button
+                      className="reject-button"
+                      onClick={() => handleRequest(request._id, "rejected")}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))
           ) : (
-            <p>You have reached the maximum number of requests!</p>
+            <p>No new requests available!</p>
           )}
         </div>
-      )}
-      <p>Final applications:</p>
-      {Array.isArray(finalApplications) && finalApplications.length === 0 ? (
-        <p>You don't have any final application yet!</p>
-      ) : (
-        <div>
-          <ul>
-            {finalApplications.map((request, index) => (
-              <div key={index}>
-                <li>{request.student.firstname} {request.student.lastname} -
-                  <button onClick={() => downloadApplication(index)}>View application</button>
-                  <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id, file)} value="accepted">Accept</button>
-                  <p>{request.status}</p>
-                  <form>
-                    <input type="file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt"
-                      onChange={submitFile}></input>
-                  </form>
-                  <button onClick={(e) => handleFinalApplication(e, request._id, request.student._id)} value="rejected">Reject</button>
-                </li>
-                <p>{message}</p>
+        <div className="fragment final-applications">
+          <h2>Final Applications</h2>
+          {finalApplications.length > 0 ? (
+            finalApplications.map((request, index) => (
+              <div key={index} className="application-card-teacher">
+                <p>
+                  {request.student.firstname} {request.student.lastname}
+                </p>
+                <div className="cta">
+                  <button
+                    className="view-button"
+                    onClick={() => downloadApplication(index)}
+                  >
+                    View Application
+                  </button>
+                  <input
+                    type="file"
+                    onChange={submitFile}
+                    className="file-input"
+                    accept=".pdf,.doc,.docx"
+                  />
+                  <button
+                    className="accept-button"
+                    onClick={(e) =>
+                      handleFinalApplication(
+                        e,
+                        request._id,
+                        request.student._id,
+                        file
+                      )
+                    }
+                    value="accepted"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="reject-button"
+                    onClick={(e) =>
+                      handleFinalApplication(
+                        e,
+                        request._id,
+                        request.student._id
+                      )
+                    }
+                    value="rejected"
+                  >
+                    Reject
+                  </button>
+                </div>
               </div>
-            ))}
-          </ul>
+            ))
+          ) : (
+            <p>No final applications submitted yet!</p>
+          )}
         </div>
-      )}
-        </div>
-      ) : (
-        <p>{error}</p>
+      </div>
+      {error && <p className="error-message">{error}</p>}
+      {message && (
+        <p onClick={() => setMessage("")} className="message">
+          {message}
+        </p>
       )}
     </div>
   );

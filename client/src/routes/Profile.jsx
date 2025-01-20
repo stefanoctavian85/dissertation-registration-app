@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Profile.css";
+import Loading from "../components/Loading";
 
 function Profile() {
   const [firstname, setFirstname] = useState("");
@@ -14,6 +15,7 @@ function Profile() {
   const [acceptedApplications, setAcceptedApplications] = useState([]);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   let navigate = useNavigate();
 
@@ -50,7 +52,7 @@ function Profile() {
           setFirstname(data.firstname);
           setLastname(data.lastname);
           setIsStudent(data.isStudent);
-
+          setIsLoading(false);
           if (data.isStudent) {
             fetch("http://localhost:8080/accepted-application", {
               method: "GET",
@@ -59,9 +61,11 @@ function Profile() {
               },
             })
               .then((res) => {
+                setIsLoading(false);
                 return res.json();
               })
               .then((response) => {
+                setIsLoading(false);
                 setAcceptedApplication(response.request);
               })
               .catch((err) => setError(err));
@@ -73,9 +77,11 @@ function Profile() {
               },
             })
               .then((res) => {
+                setIsLoading(false);
                 return res.json();
               })
               .then((response) => {
+                setIsLoading(false);
                 setAcceptedApplications(response.request);
               })
               .catch((err) => setError(err));
@@ -123,6 +129,10 @@ function Profile() {
       .catch((err) => {
         setError(err);
       });
+  }
+
+  if (isLoading) {
+    return <Loading />;
   }
 
   return (
@@ -183,7 +193,9 @@ function Profile() {
         ) : (
           <div className="no-application-card">
             <h2>Applications Accepted</h2>
-            {acceptedApplications && Array.isArray(acceptedApplications) && acceptedApplications.length > 0 ? (
+            {acceptedApplications &&
+            Array.isArray(acceptedApplications) &&
+            acceptedApplications.length > 0 ? (
               <ul className="accepted-students">
                 {acceptedApplications.map((application, index) => (
                   <li key={index} className="row">
