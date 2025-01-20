@@ -470,7 +470,7 @@ app.get("/accepted-application", async (req, res) => {
   try {
     let request = await Request.findOne({ student: id, status: "accepted" }).populate("teacher", "firstname lastname");
 
-    if (!requests) {
+    if (!request) {
       return res.status(404).json({
         message: "Requests not found!",
       })

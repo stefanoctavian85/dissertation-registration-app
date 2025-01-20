@@ -50,6 +50,44 @@ function Profile() {
           setFirstname(data.firstname);
           setLastname(data.lastname);
           setIsStudent(data.isStudent);
+          if (data.isStudent) {
+            fetch("http://localhost:8080/accepted-application", {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            })
+              .then((res) => {
+                if (!res.ok) {
+                  setError(res.error);
+                  return;
+                }
+                return res.json();
+              })
+              .then((response) => {
+                setAcceptedApplication(response.request);
+              })
+              .catch((err) => setError(err));
+          } else {
+            fetch("http://localhost:8080/accepted-applications", {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            })
+              .then((res) => {
+                if (!res.ok) {
+                  setError(res.error);
+                  return;
+                }
+                return res.json();
+              })
+              .then((response) => {
+                console.log(response.request);
+                setAcceptedApplications(response.request);
+              })
+              .catch((err) => setError(err));
+          }
           setBtnRequestsText(
             data.isStudent
               ? "Send a new application"
@@ -57,55 +95,8 @@ function Profile() {
           );
         })
         .catch((err) => setError(err));
-
-      if (isStudent) {
-        fetch("http://localhost:8080/accepted-application", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        })
-          .then((res) => {
-            if (!res.ok) {
-              setError(res.error);
-              return;
-            }
-            return res.json();
-          })
-          .then((data) => {
-            setAcceptedApplication(data.request);
-          })
-          .catch((err) => setError(err));
-      } else {
-        fetch("http://localhost:8080/accepted-applications", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        })
-          .then((res) => {
-            if (!res.ok) {
-              setError(res.error);
-              return;
-            }
-            return res.json();
-          })
-          .then((data) => {
-            console.log(data.request);
-            setAcceptedApplications(data.request);
-          })
-          .catch((err) => setError(err));
-      }
     }
-  }, [isStudent]);
-
-  if (error) {
-    return (
-      <div>
-        <p>{error}</p>
-      </div>
-    );
-  }
+  }, []);
 
   function requestsHandler() {
     if (isStudent) {
@@ -115,7 +106,7 @@ function Profile() {
     }
   }
 
-  async function downloadApplication() {
+  async function downloadApplication(application) {
     const storedToken = localStorage.getItem("token");
     setToken(token);
 
@@ -124,7 +115,7 @@ function Profile() {
       return;
     }
 
-    fetch(`http://localhost:8080/${acceptedApplication.fileUrl}`, {
+    fetch(`http://localhost:8080/${application.fileUrl}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${storedToken}`,
@@ -134,7 +125,7 @@ function Profile() {
       .then((blob) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = acceptedApplication.fileUrl.split("/").pop();
+        link.download = application.fileUrl.split("/").pop();
         link.click();
       })
       .catch((err) => {
@@ -205,7 +196,7 @@ function Profile() {
                 </p>
                 <button
                   className="profile-button profile-download-button"
-                  onClick={downloadApplication}
+                  onClick={() => downloadApplication(acceptedApplication)}
                 >
                   View Application
                 </button>
@@ -237,7 +228,7 @@ function Profile() {
                     </p>
                     <button
                       className="profile-button profile-download-button"
-                      onClick={downloadApplication}
+                      onClick={() => downloadApplication(application)}
                     >
                       View Application
                     </button>
