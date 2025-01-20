@@ -417,13 +417,6 @@ app.post("/reject-final-application", async (req, res) => {
   try {
     const request = await Request.findOne({ _id: id, student, status: "approved" });
 
-    // if (!request) {
-    //   return res.status(404).json({
-    //     message: "Request not found!",
-    //   });
-    // }
-
-
     request.status = status;
     await request.save();
   } catch (err) {
@@ -477,8 +470,10 @@ app.get("/accepted-application", async (req, res) => {
   try {
     let request = await Request.findOne({ student: id, status: "accepted" }).populate("teacher", "firstname lastname");
 
-    if (!request) {
-      request = await Request.findOne({ student: id, status: "rejected", fileUrl: { $ne: "" } }).populate("teacher", "firstname lastname");
+    if (!requests) {
+      return res.status(404).json({
+        message: "Requests not found!",
+      })
     }
 
     return res.status(200).json({
@@ -490,7 +485,31 @@ app.get("/accepted-application", async (req, res) => {
       message: "An error occured when you sent the request. Please try again later!",
     })
   }
-})
+});
+
+app.get("/accepted-applications", async (req, res) => {
+  const { id } = req.auth;
+
+  try {
+    let request = await Request.find({ teacher: id, status: "accepted" }).populate("student", "firstname lastname");
+
+    if (request.length === 0) {
+      return res.status(404).json({
+        message: "Requests not found!",
+      })
+    }
+
+    return res.status(200).json({
+      request,
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: "An error occured when you sent the request. Please try again later!",
+    })
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`has started on port ${PORT}!`);

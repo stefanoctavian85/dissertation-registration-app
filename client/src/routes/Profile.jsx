@@ -6,11 +6,12 @@ import "./Profile.css";
 function Profile() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [isStudent, setIsStudent] = useState(0);
+  const [isStudent, setIsStudent] = useState(false);
   const [btnRequestsText, setBtnRequestsText] = useState("");
   const [error, setError] = useState(null);
   const [token, setToken] = useState("");
   const [acceptedApplication, setAcceptedApplication] = useState("");
+  const [acceptedApplications, setAcceptedApplications] = useState([]);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
 
@@ -57,25 +58,46 @@ function Profile() {
         })
         .catch((err) => setError(err));
 
-      fetch("http://localhost:8080/accepted-application", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            setError(res.error);
-            return;
-          }
-          return res.json();
+      if (isStudent) {
+        fetch("http://localhost:8080/accepted-application", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
         })
-        .then((data) => {
-          setAcceptedApplication(data.request);
+          .then((res) => {
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            return res.json();
+          })
+          .then((data) => {
+            setAcceptedApplication(data.request);
+          })
+          .catch((err) => setError(err));
+      } else {
+        fetch("http://localhost:8080/accepted-applications", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
         })
-        .catch((err) => setError(err));
+          .then((res) => {
+            if (!res.ok) {
+              setError(res.error);
+              return;
+            }
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data.request);
+            setAcceptedApplications(data.request);
+          })
+          .catch((err) => setError(err));
+      }
     }
-  }, []);
+  }, [isStudent]);
 
   if (error) {
     return (
@@ -164,7 +186,7 @@ function Profile() {
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
         <button className="profile-button" onClick={requestsHandler}>
-        {isStudent
+          {isStudent === true
             ? "View Your Applications"
             : "Manage Received Applications"}
         </button>
@@ -188,25 +210,39 @@ function Profile() {
                   View Application
                 </button>
               </>
-            ) : (
-              <>
-                <h2>Application Rejected</h2>
-                <p className="text">
-                  Coordinator:{" "}
-                  {acceptedApplication.teacher.firstname +
-                    " " +
-                    acceptedApplication.teacher.lastname}
-                </p>
-              </>
-            )}
+            ) : null}
           </div>
-        ) : (
+        ) : isStudent === true ? (
           <div className="no-application-card">
             <h2>No Accepted Applications Yet</h2>
             <p className="text">Start by submitting a new request to a coordinator.</p>
             <button className="profile-button" onClick={requestsHandler}>
               Submit a Request
             </button>
+          </div>
+        ) : (
+          <div className="no-application-card">
+            <h2>Applications Accepted</h2>
+            {acceptedApplications.length > 0 ? (
+              <ul className="accepted-students">
+                {acceptedApplications.map((application, index) => (
+                  <li key={index}>
+                    <p className="text">
+                      Student:{" "}
+                      {application.student.firstname +
+                        " " +
+                        application.student.lastname}
+                    </p>
+                    <button
+                      className="profile-button profile-download-button"
+                      onClick={downloadApplication}
+                    >
+                      View Application
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         )}
       </div>
