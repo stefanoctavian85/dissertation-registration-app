@@ -105,4 +105,6 @@ Ensure you have the following installed on your machine:
 ## Contributions
 Feel free to fork the repository and contribute to the project. Contributions in the form of pull requests, bug fixes, and improvements are always welcome.
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
