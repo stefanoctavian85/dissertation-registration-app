@@ -170,6 +170,7 @@ function Request() {
     if (!res.ok) {
       setMessage(data.error);
     }
+    setMessage("The application has been successfully submitted!")
   };
 
   if (isLoading) {

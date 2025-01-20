@@ -125,45 +125,6 @@ function Profile() {
       });
   }
 
-  const sendApplication = async (e, request) => {
-    e.preventDefault();
-
-    const storedToken = localStorage.getItem("token");
-
-    if (!storedToken) {
-      navigate("/login");
-      return;
-    }
-
-    if (!file) {
-      setMessage("Please upload a file!");
-      return;
-    } else {
-      setMessage("");
-    }
-
-    let studentId = jwtDecode(token).id;
-    let teacherId = request.teacher._id;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("student", studentId);
-    formData.append("teacher", teacherId);
-
-    const res = await fetch("http://localhost:8080/send-final-application", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${storedToken}`,
-      },
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      setMessage(data.error);
-    }
-  };
-
   return (
     <div className="profile-page">
       <div className="profile-header">
