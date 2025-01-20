@@ -8,26 +8,24 @@ function Home({ isLoggedIn }) {
       {isLoggedIn ? (
         <main>
           <section className="section">
-            <h2>Colaborează ușor cu profesorii coordonatori</h2>
+            <h2>Collaborate easily with supervising teachers</h2>
             <p>
-              Găsește și comunică cu profesorul tău coordonator pentru a-ți
-              dezvolta lucrarea de disertație.
+              Find and communicate with your supervising teacher
+              to develop your dissertation.
             </p>
             <p>
-              Trimite cereri direct din aplicație și primește răspunsuri în timp
-              util
+              Send applications directly from the app and receive timely responses.
             </p>
           </section>
 
           <section className="section">
-            <h2>Urmărește progresul cererilor</h2>
+            <h2>Track your progress of your applications</h2>
             <p>
-              Ai acces la un tablou de bord personalizat unde poți verifica
-              statusul cererilor trimise și detaliile despre profesorii care te
-              ghidează.
+              Access a personalized dashboard where you can check the status of submitted applications
+              and details about professors guiding you.
             </p>
             <p>
-              Planifică toate detaliile pentru susținerea lucrării de disertație
+              Plan all the details for your disseratition.
             </p>
           </section>
         </main>

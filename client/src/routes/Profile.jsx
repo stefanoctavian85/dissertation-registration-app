@@ -172,9 +172,9 @@ function Profile() {
       <div className="profile-content">
         {acceptedApplication ? (
           <div className="application-card">
-            {acceptedApplication ? (
+            {acceptedApplication.status === "accepted" ? (
               <>
-                <h2>Application Approved</h2>
+                <h2>Application Accepted</h2>
                 <p className="coordinator">
                   Coordinator:{" "}
                   {acceptedApplication.teacher.firstname +
@@ -191,7 +191,7 @@ function Profile() {
             ) : (
               <>
                 <h2>Application Rejected</h2>
-                <p>
+                <p className="coordinator">
                   Coordinator:{" "}
                   {acceptedApplication.teacher.firstname +
                     " " +
