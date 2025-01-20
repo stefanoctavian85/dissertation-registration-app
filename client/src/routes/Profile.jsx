@@ -164,9 +164,7 @@ function Profile() {
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
         <button className="profile-button" onClick={requestsHandler}>
-          {isStudent
-            ? "View Your Applications"
-            : "Manage Received Applications"}
+          {btnRequestsText}
         </button>
       </div>
       <div className="profile-content">
