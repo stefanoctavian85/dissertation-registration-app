@@ -91,7 +91,7 @@ function Register() {
               required
             />
           </div>
-          <div className="login-input">
+          <div className="login-input" id="email">
             <label htmlFor="email-input">Email</label>
             <input
               id="email-input"

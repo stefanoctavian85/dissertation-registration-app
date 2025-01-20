@@ -48,13 +48,14 @@
 }
 
 .login-input input {
+  width: 100%;
   padding: 10px;
   border: 1px solid hsl(0, 0%, 80%);
   border-radius: 5px;
   font-size: 1rem;
-  width: 100%;
   outline: none;
   transition: border 0.3s;
+  box-sizing: border-box;
 }
 
 .login-input input:focus {
@@ -105,4 +106,8 @@
   color: #d9534f;
   font-size: 0.9rem;
   margin-top: 10px;
+}
+
+.login-input {
+  width: 300px;
 }
