@@ -138,13 +138,11 @@ function Profile() {
     <div className="profile-page">
       <div className="profile-header">
         <h1>Welcome, {firstname + " " + lastname}!</h1>
-        {!acceptedApplication ? (
-          <button className="profile-button" onClick={requestsHandler}>
-            {isStudent === true
-              ? "View Your Applications"
-              : "Manage Received Applications"}
-          </button>
-        ) : null}
+        <button className="profile-button" onClick={requestsHandler}>
+          {isStudent === true
+            ? "View Your Applications"
+            : "Manage Received Applications"}
+        </button>
       </div>
       <div className="profile-content">
         {acceptedApplication ? (
@@ -193,8 +191,8 @@ function Profile() {
           <div className="no-application-card">
             <h2>Applications Accepted</h2>
             {acceptedApplications &&
-            Array.isArray(acceptedApplications) &&
-            acceptedApplications.length > 0 ? (
+              Array.isArray(acceptedApplications) &&
+              acceptedApplications.length > 0 ? (
               <ul className="accepted-students">
                 {acceptedApplications.map((application, index) => (
                   <li key={index} className="row">

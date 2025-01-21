@@ -446,6 +446,8 @@ app.post("/accept-final-application", upload.single("file"), async (req, res) =>
       })
     }
 
+    const acceptedRequestsForTeacher = await Request.find({})
+
     request.status = status;
 
     let filePath = path.normalize(file.path);

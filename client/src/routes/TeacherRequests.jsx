@@ -184,7 +184,11 @@ function TeacherRequests() {
     setNeedsUpdate(true);
     console.log(file);
 
-    if (e.target.value === "accepted") {
+    if (e.target.value === "accepted" && acceptedRequestsNumber < 5) {
+      setFinalApplications(
+        finalApplications.filter((request) => request._id !== reqId)
+      );
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("id", reqId);
@@ -220,12 +224,8 @@ function TeacherRequests() {
           student: studentId,
         }),
       });
-      if (res.ok) {
-        setFinalApplications((prevReq) =>
-          prevReq.filter((req) => req._id !== reqId)
-        );
-        setNeedsUpdate(true);
-      }
+    } else {
+      setMessage("")
     }
   };
 
