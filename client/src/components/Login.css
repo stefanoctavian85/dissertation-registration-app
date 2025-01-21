@@ -1,0 +1,41 @@
+#login-container {
+    border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 30px;
+    width: fit-content;
+    margin: auto;
+    align-items: center;
+}
+
+.login-item label {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: white;
+}
+
+#login-container input {
+    max-width: 200px;
+    display: block;
+    border-radius: 5px;
+}
+
+#login-container button {
+    padding: 5px 50px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: hsl(179, 84%, 52%);
+}
+
+#login-container p {
+    margin-bottom: 0px;
+}
+
+#message {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+}
