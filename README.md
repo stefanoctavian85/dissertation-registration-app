@@ -1,3 +1,6 @@
+![pitch-day-badge](https://github.com/user-attachments/assets/07739cf8-3829-4d13-ac37-5756c3a98e16)
+PITCH DAY 25’ was an event where students of Webtech @CSIE presented the projects they worked on the entire semester. Participant students were prompted to specify an amount of fictitious money they would invest in a project, based on their personal criteria. The leaderboard was created based on the amount of money raised by each project.
+
 # Dissertation Registration Application
 
 A web application designed to facilitate the dissertation registration process for students and professors. The platform allows users to manage dissertation requests in an efficient and user-friendly manner, supporting both desktop and mobile devices as a Single Page Application (SPA).
